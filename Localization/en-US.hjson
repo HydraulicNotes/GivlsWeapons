@@ -1,0 +1,138 @@
+Mods: {
+	GivlsWeapons: {
+		Buffs: {
+			BlackGlow: {
+				DisplayName: Black Glow
+				Description: Mods.GivlsWeapons.Buffs.BlackGlow.Description
+			}
+
+			WhiteGlow: {
+				DisplayName: White Glow
+				Description: Mods.GivlsWeapons.Buffs.WhiteGlow.Description
+			}
+
+			InstaKillCurse: {
+				DisplayName: Instant Death Curse
+				Description: One hit will kill you!
+			}
+		}
+
+		Items: {
+			DiscordShield: {
+				DisplayName: Shield of Discord
+				Tooltip:
+					'''
+					Hit an enemy with the dash to teleport to the mouse cursor
+					The enemy will receive chaos state in your place, as well as the damage if either of you already has chaos state
+					'''
+			}
+
+			MeteorDisk: {
+				DisplayName: Meteor Disk
+				Tooltip: Creates a burning aura beneath you that restores mana when it damages enemies
+			}
+
+			QuicksilverBoots: {
+				DisplayName: Quicksilver Boots
+				Tooltip:
+					'''
+					The wearer can run super fast
+					Running fast restores mana
+					'''
+			}
+
+			BalanceSoul: {
+				DisplayName: Soul of Balance
+				Tooltip:
+					'''
+					The essence of light creatures in dark places
+					The essence of dark creatures in light places
+					'''
+			}
+
+			BlackandWhiteGun: {
+				DisplayName: Black & White
+				Tooltip:
+					'''
+					Alternates between shooting black and white bullets
+					If the same color hits an enemy twice in a row, it will do extra damage
+					'''
+			}
+
+			BoringWand: {
+				DisplayName: Pentacle Staff
+				Tooltip:
+					'''
+					Shoots a pentacle that reflects back and forth.
+					Every hit gives the pentacle a small amount of healing energy, which will be given to you on contact
+					'''
+			}
+
+			Cross: {
+				DisplayName: Cross
+				Tooltip:
+					'''
+					Continuously damages enemies just by pointing the cross in their general direction
+					Cannot move while holding up
+					'''
+			}
+
+			HFMuramasa: {
+				DisplayName: High-Frequency Muramasa
+				Tooltip:
+					'''
+					15 armor penetration
+					Creates an additional slash on hit, to cut enemies twice
+					Stop moving to sheath the sword, the next attack will be an explosive quick-draw
+					'''
+			}
+
+			RubberKnife: {
+				DisplayName: Rubber Knife
+				Tooltip: Krav Maga!
+			}
+
+			TeleportingAxes: {
+				DisplayName: Tesseraxes
+				Tooltip:
+					'''
+					Two axes which can teleport you after striking an enemy
+					Use the left and right mouse buttons to attack with either axe
+					Use after hitting an enemy with an axe to throw it
+					Use again to teleport to the axe
+					'''
+			}
+
+			RisingFlameArrow: {
+				DisplayName: Rising Flame Arrow
+				Tooltip: Fires a rising flame upwards on impact
+			}
+
+			CursedFlask: {
+				DisplayName: Cursed Flask
+				Tooltip:
+					'''
+					Restores you to full life, can be used infinitely, and does not cause potion sickness
+					Inflicts a curse which causes you to die in one hit for a base of 20 seconds
+					Will not be used by Quick Heal
+					'''
+			}
+		}
+
+		Projectiles: {
+			MeteorDiskAura.DisplayName: Meteor Disk Aura
+			BlackBullet.DisplayName: Black Bullet
+			BoringWandProjectile.DisplayName: Pentacle
+			CrossAura.DisplayName: Cross Aura
+			HFMuramasaProjectile.DisplayName: High-Frequency Muramasa
+			RubberKnifeProjectile.DisplayName: Rubber Knife
+			WhiteBullet.DisplayName: White Bullet
+			HFMuramasaGlowingSlash.DisplayName: High-Frequency Muramasa
+			TeleportingAxeProjectile.DisplayName: Tesseraxe
+			TeleportingAxeSwingProjectile.DisplayName: Tesseraxe
+			RisingFlameArrowProjectile.DisplayName: Rising Flame Arrow
+			RisingFlameProjectile.DisplayName: Rising Flame
+			Pentacle.DisplayName: Pentacle
+		}
+	}
+}
