@@ -64,7 +64,6 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
                         0, default, 1f);
                 }
             }
-            Main.NewText(HealingEnergy);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
