@@ -2,14 +2,11 @@ Have you ever thought that pointing at enemies until they die was a little bit d
 Givl's weapons adds several new weapons, which all provide an exciting and engaging experience, beyond what vanilla weapons can.
 Look forward to regular updates with new weapons
 
-NEW - Potions:
-
-NEW - Cursed Flask: Restores you to full HP instantly. Instead of potion sickness, inflicts potion curse for 20 seconds, which causes you to die in a single hit.
+Now with multiplayer support!
 
 Weapons:
 
-NEW - Rising Flame Arrows: Arrows that shoot a flame upwards on impact
-
+- Rising Flame Arrows: Arrows that shoot a flame upwards on impact
 - Tesseraxes: Two axes which you can throw and teleport to at will
 - High-Frequency Muramasa: An advanced sword with a custom swing that creates additional slashes to cut enemies again, and can perform a devastating quickdraw attack with its gun-sheath.
 - Cross: Constantly damages enemies in a wide area in front of you, but locks your movement while you use it, FAITH-style
@@ -18,12 +15,17 @@ NEW - Rising Flame Arrows: Arrows that shoot a flame upwards on impact
 
 Accessories:
 
+NEW - Chlorophyte Idol: Creates a stationary leaf crystal when hitting an enemy with a true melee attack
+
 - Shield of Discord: Upgrade to Shield of Cthulhu. On hitting an enemy with the dash, teleports you to your cursor. The enemy takes chaos state in your place, and will take the damage as well if either of you has it already.
 - Quicksilver Boots: Hermes Boots alt which rapidly restores mana while running.
 - Meteor Disk: Creates a burning aura underneath you that restores mana as it damages enemies
 
+Potions:
+
+- Cursed Flask: Restores you to full HP instantly. Instead of potion sickness, inflicts potion curse for 20 seconds, which causes you to die in a single hit.
+
+
 Also adds one meme weapon, try the mod and find out.
-
-
 
 Find me on the Tmodloader Discord, GIVL#5107

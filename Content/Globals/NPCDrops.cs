@@ -25,6 +25,10 @@ namespace GivlsWeapons.Content.Globals
             {
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<CursedFlask>(), 25));
             }
+            if(npc.type == NPCID.Lihzahrd || npc.type == NPCID.LihzahrdCrawler || npc.type == NPCID.FlyingSnake)
+            {
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<ChlorophyteIdol>(), 60));
+            }
             /* if (Main.hardMode && npc.position.Y > Main.rockLayer * 16.0)
             {
                 if (Main.player[Player.FindClosest(npc.position, npc.width, npc.height)].ZoneHallow)

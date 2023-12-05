@@ -117,6 +117,11 @@ Mods: {
 					Will not be used by Quick Heal
 					'''
 			}
+
+			ChlorophyteIdol: {
+				DisplayName: Chlorophyte Idol
+				Tooltip: True melee hits create a stationary leaf crystal that fires at nearby enemies
+			}
 		}
 
 		Projectiles: {
@@ -133,6 +138,7 @@ Mods: {
 			RisingFlameArrowProjectile.DisplayName: Rising Flame Arrow
 			RisingFlameProjectile.DisplayName: Rising Flame
 			Pentacle.DisplayName: Pentacle
+			AltLeafCrystal.DisplayName: Crystal Leaf
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace GivlsWeapons.Development
     {
         public static void SolidTilesView(Vector2 position, int width, int height) //Thanks to photonic for providing these tools to visualize collision
         {
-            Texture2D blankTexture = Terraria.GameContent.TextureAssets.Extra[195].Value;
+            Texture2D blankTexture = TextureAssets.Extra[195].Value;
             Vector2 texScale = new Vector2(width * 16, height * 16) * 0.00390625f;//1/256, texture is 256x256
             position /= 16;
             position.X = MathF.Floor(position.X);

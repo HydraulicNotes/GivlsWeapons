@@ -33,6 +33,10 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
         {
             modifiers.HitDirectionOverride = (int)Projectile.ai[0];
         }
+/*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers) //Uncomment this when ModifyHitPlayer gets fixed
+        {
+            modifiers.HitDirectionOverride = (int)Projectile.ai[0];
+        } */
 
         public override bool? CanCutTiles()
         {

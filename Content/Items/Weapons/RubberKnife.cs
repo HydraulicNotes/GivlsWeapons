@@ -3,6 +3,8 @@ using Terraria.ModLoader;
 using Terraria.GameContent.Creative;
 using Terraria.ID;
 using GivlsWeapons.Content.Projectiles.Weapons;
+using Terraria.DataStructures;
+using GivlsWeapons.Content.Buffs;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -41,5 +43,15 @@ namespace GivlsWeapons.Content.Items.Weapons
             Item.shootSpeed = 1.8f;
             Item.shoot = ModContent.ProjectileType<RubberKnifeProjectile>();
         }
+
+/*         public override bool? UseItem(Player player) //Works every time, as opposed to Instakill Curse which doesn't always work on other clients
+        {
+            if (Main.myPlayer == player.whoAmI && player.HasBuff<InstaKillCurse>())
+            {
+                PlayerDeathReason deathReason = PlayerDeathReason.ByCustomReason("Funny rubber knife");
+                player.KillMe(deathReason, 69, player.direction, false);
+            }
+            return true;
+        } */
     }
 }

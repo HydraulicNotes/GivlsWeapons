@@ -73,7 +73,7 @@ namespace GivlsWeapons.Content.Items.Weapons
                 {
                     //altFunctionUse is added to attackType, so that the projectile's attackType will be moved into the range for the correct axe, and still indicate the correct combo strike
                     int axeSwing = Projectile.NewProjectile(source, position, Vector2.Zero, type, damage, knockback, player.whoAmI, attackType + player.altFunctionUse);
-                    Main.projectile[axeSwing].localAI[2] = 2; //The rune glow is set from the beginning. This may change if I feel like it would look better.
+                    //Main.projectile[axeSwing]. = 2; //The rune glow is set from the beginning.
                     attackType = (attackType + 1) % 2;
                 }
             }
@@ -111,7 +111,10 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             return true;
         }
-
+        public override bool MeleePrefix()
+        {
+            return true; //returning true allows the item to get modifiers affecting size
+        }
         public override void AddRecipes()
         {
             CreateRecipe()

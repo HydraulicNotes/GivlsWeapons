@@ -32,14 +32,9 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
         {
             Timer++;
             Player owner = Main.player[Projectile.owner];
-
-            if (Timer < 60)
+            if (Timer < 120)
             {
-                Projectile.velocity *= 1.01f;
-            }
-            else if (Timer < 120)
-            {
-                Projectile.velocity *= 1.05f;
+                Projectile.velocity *= 1.03f;
             }
 
             if (Projectile.Colliding(Projectile.Hitbox, owner.Hitbox) && HealingEnergy > 0)
@@ -74,6 +69,7 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
             {
                 HealingEnergy++;
             }
+            Projectile.netUpdate = true;
         }
     }
 }

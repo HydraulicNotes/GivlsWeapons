@@ -11,6 +11,7 @@ using Terraria.GameContent;
 using GivlsWeapons.Content.Items.Weapons;
 using System.Net;
 using GivlsWeapons.Development;
+using System.Text;
 
 namespace GivlsWeapons.Content.Projectiles.Weapons
 {
@@ -43,15 +44,15 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
 
         public override void OnSpawn(IEntitySource source)
         {
-            Player owner = Main.player[Projectile.owner];
             Projectile.spriteDirection = Projectile.velocity.X < 0 ? -1 : 1;
-            Projectile.scale = 1.2f * owner.GetAdjustedItemScale(owner.HeldItem); //this must be kept the same as the swing projectile to keep the size consistent
             Projectile.rotation = 0;
-            Projectile.frame = (int)AxeType;
         }
 
         public override void AI()
-        { //create a line through the blade of the axe for custom collision
+        {
+            Player owner = Main.player[Projectile.owner];
+            Projectile.scale = 1.2f * owner.GetAdjustedItemScale(owner.HeldItem); //this must be kept the same as the swing projectile to keep the size consistent
+            //create a line through the blade of the axe for custom collision
             Vector2 startPoint = Projectile.Center + (Projectile.rotation - MathHelper.ToRadians(90f)).ToRotationVector2() * Projectile.Size.Length() * Projectile.scale * 0.16f;
             Vector2 endPoint = Projectile.Center + Projectile.rotation.ToRotationVector2() * Projectile.Size.Length() * Projectile.scale * 0.32f * Projectile.spriteDirection;
             if (Collision.CanHitLine(startPoint, 0, 0, endPoint, 0, 0)) //checks the line between the points, and returns whether it collides with tiles
@@ -90,10 +91,17 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
             }
             //SetVisualOffsets();
         }
+        public override void SendExtraAI(BinaryWriter writer)
+        {
+            writer.Write((sbyte)Projectile.spriteDirection);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader)
+        {
+            Projectile.spriteDirection = reader.ReadSByte();
+        }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            //i don't even know what i'm doing. Hopefully this will make it so the axe gets drawn centered on the middle of the hitbox, and we can easily add runes on top
             SpriteEffects effects = Projectile.spriteDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
@@ -124,6 +132,7 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
         private const float FIRSTHALFSWING = 0.55f; // How much of the swing happens before it reaches the target angle (in relation to swingRange)
         private const float WINDUP = 0.15f; // How far back the player's hand goes when winding their attack (in relation to swingRange)
         private const float UNWIND = 0.4f; // When should the sword start disappearing
+        //public float RuneGlow;
 
         private enum AttackType // Which attack is being performed
         {
@@ -225,17 +234,21 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
             }
 
             InitialAngle = targetAngle - FIRSTHALFSWING * SWINGRANGE * Projectile.spriteDirection; // Otherwise, we calculate the angle
+            bool shouldGlow = (CurrentAttack == AttackType.Swing || CurrentAttack == AttackType.BackSwing) ? Owner.GetModPlayer<TeleportingAxePlayer>().blueAxeReady : Owner.GetModPlayer<TeleportingAxePlayer>().pinkAxeReady;
+            RuneGlow = shouldGlow ? 1 : 0;
         }
 
         public override void SendExtraAI(BinaryWriter writer)
         {
             // Projectile.spriteDirection for this projectile is derived from the mouse position of the owner in OnSpawn, as such it needs to be synced. spriteDirection is not one of the fields automatically synced over the network. All Projectile.ai slots are used already, so we will sync it manually. 
             writer.Write((sbyte)Projectile.spriteDirection);
+            writer.Write((sbyte)RuneGlow);
         }
 
         public override void ReceiveExtraAI(BinaryReader reader)
         {
             Projectile.spriteDirection = reader.ReadSByte();
+            RuneGlow = reader.ReadSByte();
         }
 
         public override void AI()
@@ -279,7 +292,7 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            
+
             // Calculate origin of sword (hilt) based on orientation and offset sword rotation (as sword is angled in its sprite)
             int axeType = (CurrentAttack == AttackType.SwingPink || CurrentAttack == AttackType.BackSwingPink) ? 1 : 0; //set to 1 to use the 2nd vertical frame, otherwise set to 0 to use the first
             Vector2 origin;
@@ -312,7 +325,7 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
             //34 176 255
 
             Main.spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, texture.Frame(2, 2, 0, axeType), lightColor * Projectile.Opacity, Projectile.rotation + rotationOffset, origin, Projectile.scale, effects, 0);
-            if (RuneGlow > 0 && Main.rand.NextBool(3))
+            if (RuneGlow > 0)
             {
                 Main.spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, texture.Frame(2, 2, 1, axeType), lightColor * Projectile.Opacity, Projectile.rotation + rotationOffset, origin, Projectile.scale, effects, 0);
                 Lighting.AddLight(Owner.MountedCenter + Projectile.rotation.ToRotationVector2() * (Projectile.Size.Length() * Projectile.scale), glowColor.ToVector3());
@@ -344,19 +357,29 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
         {
             if (CurrentStage == AttackStage.Prepare)
                 return false;
-            return base.CanDamage();
+            return null;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             RuneGlow = 1;
+            Projectile.netUpdate = true;
         }
-
+        //Thanks to the amazing power of Tmodloader, this hook doesn't run for PvP hits, making it useless
+        /*         public override void OnHitPlayer(Player target, Player.HurtInfo info)
+                {
+                    Main.NewText("OnHitPlayer ran here");
+                    RuneGlow = 1;
+                } */
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             // Make knockback go away from player
             modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
         }
+        /*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers) //This hook doesn't run on the target's client and is therefore useless
+                {
+                    modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
+                } */
 
         public override void OnKill(int timeLeft)
         {
@@ -431,11 +454,14 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
 
         private void SpawnDust(Color glowColor)
         {
-            //The dust moves 90 degrees off from the projectile's rotation to create the illusion of moving with it
-            Vector2 dustPos = Projectile.Center + Projectile.rotation.ToRotationVector2() * (Projectile.Size.Length() * Projectile.scale * Main.rand.NextFloat());
-            Vector2 velocity = (Projectile.rotation + MathHelper.ToRadians(90f)).ToRotationVector2() * 1.4f * Projectile.spriteDirection;
-            Dust newDust = Dust.NewDustPerfect(dustPos, DustID.FireworksRGB, velocity * 1.2f, newColor: glowColor);
-            newDust.noGravity = true;
+            if (Main.rand.NextBool(3))
+            {
+                //The dust moves 90 degrees off from the projectile's rotation to create the illusion of moving with it
+                Vector2 dustPos = Projectile.Center + Projectile.rotation.ToRotationVector2() * (Projectile.Size.Length() * Projectile.scale * Main.rand.NextFloat());
+                Vector2 velocity = (Projectile.rotation + MathHelper.ToRadians(90f)).ToRotationVector2() * 1.4f * Projectile.spriteDirection;
+                Dust newDust = Dust.NewDustPerfect(dustPos, DustID.FireworksRGB, velocity * 1.2f, newColor: glowColor);
+                newDust.noGravity = true;
+            }
         }
     }
 }

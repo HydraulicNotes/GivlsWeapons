@@ -4,6 +4,11 @@ using Microsoft.Xna.Framework;
 using GivlsWeapons.Content.Dusts;
 using GivlsWeapons.Content.Items.Accessories;
 using Terraria.ID;
+using System.Runtime.InteropServices;
+using Terraria.Chat;
+using Terraria.UI.Chat;
+using System.Drawing;
+using Terraria.GameContent;
 
 namespace GivlsWeapons.Content.Projectiles.Accessories
 {
@@ -39,9 +44,9 @@ namespace GivlsWeapons.Content.Projectiles.Accessories
 
             Projectile.Center = new Vector2(owner.Center.X, owner.Bottom.Y + 65);
 
-            if (owner.GetModPlayer<MeteorDiskEquipped>().Equipped)
+            if (owner.GetModPlayer<MeteorDiskEquipped>().Equipped && !owner.dead)
             {
-                Projectile.timeLeft = 30;
+                Projectile.timeLeft = 3;
             }
         }
 
@@ -54,5 +59,19 @@ namespace GivlsWeapons.Content.Projectiles.Accessories
 
             target.AddBuff(BuffID.OnFire, 60);
         }
+        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        {
+            Player owner = Main.player[Projectile.owner];
+            int manaToAdd = 1 + (int)(info.Damage * 0.2f);
+            owner.ManaEffect(manaToAdd);
+            owner.statMana += manaToAdd;
+
+            target.AddBuff(BuffID.OnFire, 60);
+        }
+//Due to a bug in TML, this can't be fixed right now. ModifyHitPlayer runs only on the owner's client, even though the target client is the one that actually has authority over the hit
+/*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+        { //Prevent from dealing knockback to players
+            modifiers.Knockback *= 0;
+        } */
     }
 }

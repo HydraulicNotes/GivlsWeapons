@@ -71,19 +71,24 @@ public class HFMuramasa : ModItem
     {
         // Using the shoot function, we override the swing projectile to set ai[0] (which attack it is)
         Projectile.NewProjectile(source, position, velocity, type, damage, knockback, Main.myPlayer, attackType);
-        if(attackType == 9){
-            SoundEngine.PlaySound(SoundID.Item38 with{Volume = 1.3f, Pitch = 0.7f}, player.position);
-            SoundEngine.PlaySound(SoundID.Item131 with
+        if (attackType == 9)
         {
-            Volume = 1.2f,
-            Pitch = 0.7f,
-            PitchVariance = 0.1f,
-            MaxInstances = 4,
-        });
-    }
+            SoundEngine.PlaySound(SoundID.Item38 with { Volume = 1.3f, Pitch = 0.7f }, player.position);
+            SoundEngine.PlaySound(SoundID.Item131 with
+            {
+                Volume = 1.2f,
+                Pitch = 0.7f,
+                PitchVariance = 0.1f,
+                MaxInstances = 4,
+            });
+        }
         attackType = (attackType + 1) % 9; // Increment attackType to move the combo forward
-        player.GetModPlayer<HFMuramasaPlayer>().quickdrawTimer = 0;
         return false;
+    }
+    public override bool? UseItem(Player player)
+    {
+        player.GetModPlayer<HFMuramasaPlayer>().quickdrawTimer = 0;
+        return null;
     }
 
     public override bool MeleePrefix()
@@ -124,11 +129,11 @@ public class HFMuramasaPlayer : ModPlayer
                         Dust particle = Dust.NewDustPerfect(dustPos1, DustID.DungeonWater, -dustAngle.ToRotationVector2() + Player.velocity);
                         particle.noGravity = true;
                     }
-                    if(quickdrawTimer % 4 == 1)
+                    if (quickdrawTimer % 4 == 1)
                     {
-                    Vector2 dustPos2 = Player.Center + Vector2.Lerp(new Vector2(-8f, 11f), new Vector2(-72f * Player.direction, 36f), MathHelper.SmoothStep(0, 1, quickdrawTimer * 0.0091f));
-                    Dust particle2 = Dust.NewDustPerfect(dustPos2, DustID.DungeonWater, new Vector2(0f, -1.5f) + Player.velocity, Scale: 1.5f);
-                    particle2.noGravity = true;
+                        Vector2 dustPos2 = Player.Center + Vector2.Lerp(new Vector2(-8f, 11f), new Vector2(-72f * Player.direction, 36f), MathHelper.SmoothStep(0, 1, quickdrawTimer * 0.0091f));
+                        Dust particle2 = Dust.NewDustPerfect(dustPos2, DustID.DungeonWater, new Vector2(0f, -1.5f) + Player.velocity, Scale: 1.5f);
+                        particle2.noGravity = true;
                     }
                 }
             }
@@ -138,16 +143,16 @@ public class HFMuramasaPlayer : ModPlayer
             }
             if (quickdrawTimer >= 110) //draw dusts regardless of whether the player is moving
             {
-                if(quickdrawTimer == 110)
+                if (quickdrawTimer == 110)
                 {
-                    SoundEngine.PlaySound(SoundID.Item149 with {Volume = 2f}, Player.position);
-/*                     for(int i = 0; i < 20; i++)
-                    {
-                        float dustAngle = Main.rand.NextFloat(0, MathHelper.TwoPi);
-                        Vector2 dustPos = new Vector2(-72f * Player.direction, 36f);
-                        Dust particle = Dust.NewDustPerfect(dustPos, DustID.DungeonWater, dustAngle.ToRotationVector2());
-                        particle.noGravity = true;
-                    } */ //For some reason this doesn't do anything. I have no idea why, because the sound still plays.
+                    SoundEngine.PlaySound(SoundID.Item149 with { Volume = 2f }, Player.position);
+                    /*                     for(int i = 0; i < 20; i++)
+                                        {
+                                            float dustAngle = Main.rand.NextFloat(0, MathHelper.TwoPi);
+                                            Vector2 dustPos = new Vector2(-72f * Player.direction, 36f);
+                                            Dust particle = Dust.NewDustPerfect(dustPos, DustID.DungeonWater, dustAngle.ToRotationVector2());
+                                            particle.noGravity = true;
+                                        } */ //For some reason this doesn't do anything. I have no idea why, because the sound still plays.
                 }
                 quickdrawTimer++;
                 for (float i = 0; i < maxDust; i += 1f)

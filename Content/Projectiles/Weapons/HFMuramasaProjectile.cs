@@ -232,6 +232,7 @@ public class HFMuramasaProjectile : ModProjectile
 
         Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
         Texture2D glowmask = ModContent.Request<Texture2D>(Glowmask).Value;
+        Main.instance.LoadProjectile(ProjectileID.TerraBlade2); //Loads the sprite in case it hasn't been already
         Texture2D slashSprite = TextureAssets.Projectile[ProjectileID.TerraBlade2].Value;
         Texture2D starSparkle = TextureAssets.Extra[98].Value;
 
@@ -349,7 +350,7 @@ public class HFMuramasaProjectile : ModProjectile
             angle += MathHelper.ToRadians(90f);
             Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), Projectile.damage, 0f, Owner.whoAmI, angle, target.whoAmI);
         }
-
+        Projectile.netUpdate = true;
     }
 
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
@@ -366,18 +367,30 @@ public class HFMuramasaProjectile : ModProjectile
             modifiers.ScalingArmorPenetration += 0.5f;
         }
     }
-    public override void OnKill(int timeLeft)
+    //Thank you TML, for running ModifyHitPlayer on the projectile owner's client instead of the client that actually has authority over the hit
+/*     public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
     {
-        if (Main.myPlayer == Projectile.owner)
+        // Make knockback go away from player
+        modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
+
+        // If the player is hit by the spin attack, increase knockback slightly. Increase it even more and ignore half the enemy player's armor for the quickdraw
+        if (CurrentAttack == AttackType.Spin)
+            modifiers.Knockback += 1;
+        if (CurrentAttack == AttackType.Quickdraw)
         {
-            if (CurrentAttack == AttackType.BackSwing || CurrentAttack == AttackType.ShortBackSwing || CurrentAttack == AttackType.FastBackSwing1 || CurrentAttack == AttackType.FastBackSwing2 || CurrentAttack == AttackType.Quickdraw)
-            {
-                Owner.direction = Projectile.spriteDirection * -1;
-            }
-            else
-            {
-                Owner.direction = Projectile.spriteDirection; //reset the player's direction at the end of each strike
-            }
+            modifiers.Knockback += 3;
+            modifiers.ScalingArmorPenetration += 0.5f;
+        }
+    } */
+    public override void OnKill(int timeLeft)
+    { //We aren't spawning retrievable ammo, so I removed the myPlayer check.
+        if (CurrentAttack == AttackType.BackSwing || CurrentAttack == AttackType.ShortBackSwing || CurrentAttack == AttackType.FastBackSwing1 || CurrentAttack == AttackType.FastBackSwing2 || CurrentAttack == AttackType.Quickdraw)
+        {
+            Owner.direction = Projectile.spriteDirection * -1;
+        }
+        else
+        {
+            Owner.direction = Projectile.spriteDirection; //reset the player's direction at the end of each strike
         }
     }
     // Function to easily set projectile and arm position
