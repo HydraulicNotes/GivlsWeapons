@@ -15,12 +15,11 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
         {
             Projectile.Size = Vector2.One * 10;
 
-            Projectile.extraUpdates = 1;
             Projectile.arrow = true;
             Projectile.aiStyle = 1;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.timeLeft = 1200;
+            Projectile.timeLeft = 600;
         }
 
         public override void AI()
@@ -66,7 +65,7 @@ namespace GivlsWeapons.Content.Projectiles.Weapons
             for (int i = 0; i < 10; i++)
             {
                 Vector2 dustPos = Main.rand.NextVector2FromRectangle(Projectile.Hitbox);
-                Dust particle = Dust.NewDustPerfect(dustPos, DustID.RedTorch, dustPos.AngleFrom(Projectile.Center).ToRotationVector2() * 2f, Scale: 1.7f);
+                Dust particle = Dust.NewDustPerfect(Projectile.Center, DustID.RedTorch, dustPos.AngleFrom(Projectile.Center).ToRotationVector2() * 2f, Scale: 1.8f);
                 particle.noGravity = true;
             }
             Projectile.rotation = 0;

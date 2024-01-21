@@ -33,10 +33,7 @@ namespace GivlsWeapons.Content.Items.Accessories
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            if (!hideVisual)
-            {
-                player.GetModPlayer<DiscordDash>().DashAccessoryEquipped = true;
-            }
+            player.GetModPlayer<DiscordDash>().DashAccessoryEquipped = true;
         }
 
         public override bool MeleePrefix()
@@ -119,7 +116,7 @@ namespace GivlsWeapons.Content.Items.Accessories
             }
             /* if (DashTimer > 0)
                 DashTimer--; */
-            if (Player.eocDash > 0)
+            if (Player.eocDash > 0 && CanUseDash())
             { // dash is active
               // This is where we set the afterimage effect.  You can replace these two lines with whatever you want to happen during the dash
               // Some examples include:  spawning dust where the player is, adding buffs, making the player immune, etc.

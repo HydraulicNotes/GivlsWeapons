@@ -76,7 +76,8 @@ namespace GivlsWeapons.Content.Items.Accessories
         }
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         { //Check for melee, then true melee by checking if heldProj is set, then distance to account for new excalibur-types, then for harpoon and flairon ai. Distance is wider than needed to account for other modders' potential bad code.
-            if ((hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed) && (Player.heldProj == proj.whoAmI || proj.Distance(Player.Center) <= 8f || proj.aiStyle == ProjAIStyleID.Harpoon || proj.aiStyle == ProjAIStyleID.Flairon) && target.type != NPCID.TargetDummy)
+            if ((hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed) && target.type != NPCID.TargetDummy &&
+            (Player.heldProj == proj.whoAmI || proj.Distance(Player.Center) <= 8f || proj.aiStyle == ProjAIStyleID.Harpoon || proj.aiStyle == ProjAIStyleID.Flairon))
             { //True melee projectiles that don't set Player.heldProj, and don't anchor themselves to the player's center or use the Flail or Flairon ai style won't work. Projectile melee weapons at extremely close range will, but that hardly matters.
                 TrySpawningCrystal(target);
             }

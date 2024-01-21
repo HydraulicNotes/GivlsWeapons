@@ -3,7 +3,6 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using GivlsWeapons.Content.Projectiles.Weapons;
 using Terraria.GameContent.Creative;
-using Microsoft.Xna.Framework;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -11,21 +10,23 @@ namespace GivlsWeapons.Content.Items.Weapons
     {
         public override void SetStaticDefaults()
         {
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 100;
+            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 99;
         }
         public override void SetDefaults()
         {
-            Item.ammo = AmmoID.Arrow;
+           /*  Item.ammo = AmmoID.Arrow;
             Item.value = Item.sellPrice(copper: 20);
             Item.consumable = true;
             Item.maxStack = 9999;
             Item.rare = ItemRarityID.Orange;
 
-            Item.shoot = ModContent.ProjectileType<RisingFlameArrowProjectile>();
+            
             Item.DamageType = DamageClass.Ranged;
             Item.damage = 13;
             Item.knockBack = 2;
-            Item.shootSpeed = 2f;
+            Item.shootSpeed = 2f; */
+            Item.CloneDefaults(ItemID.HolyArrow);
+            Item.shoot = ModContent.ProjectileType<RisingFlameArrowProjectile>();
         }
 
         public override void AddRecipes()

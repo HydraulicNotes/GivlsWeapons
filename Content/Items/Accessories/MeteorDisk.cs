@@ -19,7 +19,7 @@ namespace GivlsWeapons.Content.Items.Accessories
         {
             Item.width = 20;
             Item.height = 20;
-            Item.damage = 9;
+            Item.damage = 15;
             Item.DamageType = DamageClass.Magic;
             Item.knockBack = 0;
             Item.value = 50000;

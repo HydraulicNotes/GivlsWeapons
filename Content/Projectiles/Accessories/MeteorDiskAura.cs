@@ -53,11 +53,11 @@ namespace GivlsWeapons.Content.Projectiles.Accessories
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player owner = Main.player[Projectile.owner];
-            int manaToAdd = 1 + (int)(damageDone * 0.2f);
+            int manaToAdd = 1 + damageDone * 2;
             owner.ManaEffect(manaToAdd);
             owner.statMana += manaToAdd;
 
-            target.AddBuff(BuffID.OnFire, 60);
+            target.AddBuff(BuffID.OnFire, 180);
         }
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {

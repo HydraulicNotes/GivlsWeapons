@@ -122,13 +122,18 @@ Mods: {
 				DisplayName: Chlorophyte Idol
 				Tooltip: True melee hits create a stationary leaf crystal that fires at nearby enemies
 			}
+
+			BreakerBullet: {
+				DisplayName: Breaker Bullet
+				Tooltip: Weakens or destroys enemy projectiles
+			}
 		}
 
 		Projectiles: {
 			MeteorDiskAura.DisplayName: Meteor Disk Aura
 			BlackBullet.DisplayName: Black Bullet
 			BoringWandProjectile.DisplayName: Pentacle
-			CrossAura.DisplayName: Cross Aura
+			CrossAura.DisplayName: Cross
 			HFMuramasaProjectile.DisplayName: High-Frequency Muramasa
 			RubberKnifeProjectile.DisplayName: Rubber Knife
 			WhiteBullet.DisplayName: White Bullet
@@ -139,6 +144,7 @@ Mods: {
 			RisingFlameProjectile.DisplayName: Rising Flame
 			Pentacle.DisplayName: Pentacle
 			AltLeafCrystal.DisplayName: Crystal Leaf
+			BreakerBulletProjectile.DisplayName: Breaker Bullet
 		}
 	}
 }
