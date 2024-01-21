@@ -42,7 +42,7 @@ namespace GivlsWeapons.Content.Projectiles.Accessories
         {
             Player owner = Main.player[Projectile.owner];
 
-            Projectile.Center = new Vector2(owner.Center.X, owner.Bottom.Y + 65);
+            Projectile.Center = new Vector2(owner.Center.X, owner.Bottom.Y + owner.gfxOffY + 65);
 
             if (owner.GetModPlayer<MeteorDiskEquipped>().Equipped && !owner.dead)
             {
