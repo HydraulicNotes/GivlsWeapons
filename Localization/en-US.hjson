@@ -3,16 +3,16 @@ Mods: {
 		Buffs: {
 			BlackGlow: {
 				DisplayName: Black Glow
-				Description: Mods.GivlsWeapons.Buffs.BlackGlow.Description
+				Description: You're not supposed to have this as a player. Report to the developer of Givl's Weapons if you didn't use another mod to get it.
 			}
 
 			WhiteGlow: {
 				DisplayName: White Glow
-				Description: Mods.GivlsWeapons.Buffs.WhiteGlow.Description
+				Description: You're not supposed to have this as a player. Report to the developer of Givl's Weapons if you didn't use another mod to get it.
 			}
 
 			InstaKillCurse: {
-				DisplayName: Instant Death Curse
+				DisplayName: Curse of Sudden Death
 				Description: One hit will kill you!
 			}
 		}
@@ -22,13 +22,13 @@ Mods: {
 				DisplayName: Shield of Discord
 				Tooltip:
 					'''
-					Hit an enemy with the dash to teleport to the mouse cursor
-					The enemy will receive chaos state in your place, as well as the damage if either of you already has chaos state
+					Allows you to perform a dash which lets you teleport to the mouse cursor when it hits an enemy
+					The enemy receives chaos state instead of you, and will take damage if you or the enemy has chaos state.
 					'''
 			}
 
 			MeteorDisk: {
-				DisplayName: Meteor Disk
+				DisplayName: Meteor Charm
 				Tooltip: Creates a burning aura beneath you that restores mana when it damages enemies
 			}
 
@@ -41,22 +41,9 @@ Mods: {
 					'''
 			}
 
-			BalanceSoul: {
-				DisplayName: Soul of Balance
-				Tooltip:
-					'''
-					The essence of light creatures in dark places
-					The essence of dark creatures in light places
-					'''
-			}
-
 			BlackandWhiteGun: {
 				DisplayName: Black & White
-				Tooltip:
-					'''
-					Alternates between shooting black and white bullets
-					If the same color hits an enemy twice in a row, it will do extra damage
-					'''
+				Tooltip: Every sixth shot fires a Yin-Yang which when shot explodes into black and white bullets that target enemies
 			}
 
 			BoringWand: {
@@ -72,7 +59,7 @@ Mods: {
 				DisplayName: Cross
 				Tooltip:
 					'''
-					Continuously damages enemies just by pointing the cross in their general direction
+					Continuously damages enemies in front of you
 					Cannot move while holding up
 					'''
 			}
@@ -96,10 +83,8 @@ Mods: {
 				DisplayName: Tesseraxes
 				Tooltip:
 					'''
-					Two axes which can teleport you after striking an enemy
-					Use the left and right mouse buttons to attack with either axe
-					Use after hitting an enemy with an axe to throw it
-					Use again to teleport to the axe
+					Use the left and right mouse buttons to attack with either axe.
+					Throw the axe by using it after striking an enemy, and use again to teleport to it.
 					'''
 			}
 
@@ -112,9 +97,9 @@ Mods: {
 				DisplayName: Cursed Flask
 				Tooltip:
 					'''
-					Restores you to full life, can be used infinitely, and does not cause potion sickness
+					Restores you to full life and does not cause potion sickness
 					Inflicts a curse which causes you to die in one hit for a base of 20 seconds
-					Will not be used by Quick Heal
+					Not consumable, and will not be used when quick healing
 					'''
 			}
 
@@ -125,12 +110,37 @@ Mods: {
 
 			BreakerBullet: {
 				DisplayName: Breaker Bullet
-				Tooltip: Weakens or destroys enemy projectiles
+				Tooltip: Weakens enemy projectiles until they are destroyed
+			}
+
+			TeslaDaggers: {
+				Tooltip: ""
+				DisplayName: Tesla Daggers
+			}
+
+			BalanceSoul: {
+				DisplayName: Balance Soul
+				Tooltip: ""
+			}
+
+			BalanceBullet: {
+				DisplayName: Balance Bullet
+				Tooltip: ""
+			}
+
+			steraksgage: {
+				DisplayName: steraksgage
+				Tooltip: ""
+			}
+
+			Moonfury: {
+				DisplayName: Moonfury
+				Tooltip: ""
 			}
 		}
 
 		Projectiles: {
-			MeteorDiskAura.DisplayName: Meteor Disk Aura
+			MeteorDiskAura.DisplayName: Meteor Charm Aura
 			BlackBullet.DisplayName: Black Bullet
 			BoringWandProjectile.DisplayName: Pentacle
 			CrossAura.DisplayName: Cross
@@ -145,6 +155,13 @@ Mods: {
 			Pentacle.DisplayName: Pentacle
 			AltLeafCrystal.DisplayName: Crystal Leaf
 			BreakerBulletProjectile.DisplayName: Breaker Bullet
+			MoonfuryProj.DisplayName: Moonfury Proj
+			MoonfuryRing.DisplayName: Moonfury Ring
+			TeslaDagger.DisplayName: Tesla Dagger
+			TeslaArc.DisplayName: Tesla Arc
+			BalanceBulletProjectile.DisplayName: Balance Bullet Projectile
+			YinYang.DisplayName: Yin Yang
+			YinYangBullet.DisplayName: Yin Yang Bullet
 		}
 	}
 }

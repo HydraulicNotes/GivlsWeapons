@@ -9,7 +9,7 @@ using System;
 namespace GivlsWeapons.Content.Items.Accessories
 {
     [AutoloadEquip(EquipType.Shoes)]
-    internal class QuicksilverBoots : ModItem
+    public class QuicksilverBoots : ModItem
     {
         public override void SetDefaults()
         {

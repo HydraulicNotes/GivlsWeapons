@@ -1,13 +1,17 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
-using GivlsWeapons.Content.Projectiles.Weapons;
+﻿using Terraria.ID;
+using Terraria.DataStructures;
+using Terraria.GameContent.Creative;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
-    internal class Cross : ModItem
+    public class Cross : ModItem
     {
+        public override void SetStaticDefaults()
+        {
+            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            ItemID.Sets.ShimmerTransformToItem[Type] = ItemID.CrossNecklace;
+            ItemID.Sets.ShimmerTransformToItem[ItemID.CrossNecklace] = Type; //Shimmer back and forth with Cross Necklace
+        }
         public override void SetDefaults()
         {
             Item.width = 12;
@@ -32,15 +36,69 @@ namespace GivlsWeapons.Content.Items.Weapons
             Item.shoot = ModContent.ProjectileType<CrossAura>();
             Item.shootSpeed = 0f;
         }
-
         public override Vector2? HoldoutOffset()
         {
             return new Vector2(1, -6);
         }
-
         public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
         {
             position.X += player.direction * 192;
+        }
+    }
+    public class CrossAura : ModProjectile
+    {
+        public override void SetDefaults()
+        {
+            Projectile.width = 364; //The size is massive, because this one projectile is the entire area of the Cross' attack
+            Projectile.height = 192;
+
+            Projectile.friendly = true;
+            Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+            Projectile.timeLeft = 10;
+
+            Projectile.DamageType = DamageClass.Magic;
+
+            Projectile.aiStyle = -1;
+
+            Projectile.penetrate = -1;
+            Projectile.usesLocalNPCImmunity = true; // Uses local immunity frames
+            Projectile.localNPCHitCooldown = -1;
+        }
+        public override void OnSpawn(IEntitySource source)
+        {
+            Projectile.ai[0] = Main.player[Projectile.owner].direction;
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            modifiers.HitDirectionOverride = (int)Projectile.ai[0];
+        }
+/*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers) //Uncomment this when ModifyHitPlayer gets fixed
+        {
+            modifiers.HitDirectionOverride = (int)Projectile.ai[0];
+        } */
+
+        public override bool? CanCutTiles()
+        {
+            return false;
+        }
+    }
+    public class CrossEffects : ModPlayer
+    {
+        public override void SetControls()
+        {
+            if (Player.HeldItem.ModItem is Cross  && Player.ItemAnimationActive)
+            {
+                Player.controlDown = false;
+                Player.controlJump = false;
+                Player.controlLeft = false;
+                Player.controlRight = false;
+                Player.controlUp = false;
+                Player.controlHook = false;
+                Player.controlUseTile = false;
+                Player.controlThrow = false;
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace GivlsWeapons.Content.Dusts
 {
-    internal class QuicksilverDust : ModDust
+    public class QuicksilverDust : ModDust
     {
         public override void OnSpawn(Dust dust)
         {

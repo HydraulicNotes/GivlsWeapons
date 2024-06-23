@@ -3,7 +3,7 @@ using Terraria.ModLoader;
 
 namespace GivlsWeapons.Content.Dusts
 {
-    internal class BoringDust : ModDust
+    public class BoringDust : ModDust
     {
         public override void OnSpawn(Dust dust)
         {

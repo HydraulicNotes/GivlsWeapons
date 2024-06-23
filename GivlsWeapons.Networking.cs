@@ -8,7 +8,7 @@ namespace GivlsWeapons
 	// This is a partial class, meaning some of its parts were split into other files. See ExampleMod.*.cs for other portions.
 	partial class GivlsWeapons
 	{
-		internal enum MessageType : byte
+		public enum MessageType : byte
 		{
 			DiscordDashStart
 		}

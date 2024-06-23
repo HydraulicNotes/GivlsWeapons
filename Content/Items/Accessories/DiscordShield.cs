@@ -9,7 +9,7 @@ using Terraria.ModLoader.IO;
 namespace GivlsWeapons.Content.Items.Accessories
 {
     [AutoloadEquip(EquipType.Shield)]
-    internal class DiscordShield : ModItem
+    public class DiscordShield : ModItem
     {
         public override void SetStaticDefaults()
         {
@@ -42,7 +42,7 @@ namespace GivlsWeapons.Content.Items.Accessories
         }
     }
 
-    internal class DiscordDash : ModPlayer
+    public class DiscordDash : ModPlayer
     { //Finally fixed all MP bugs with this thing, also increased the stats a little bit and fixed the damage for real
         //public const int DashDown = 0;
         //public const int DashUp = 1;

@@ -6,7 +6,7 @@ using System;
 
 namespace GivlsWeapons.Content.Buffs
 {
-    internal class InstaKillCurse : ModBuff
+    public class InstaKillCurse : ModBuff
     { // Functionality is handled by the ModPlayer because it has an OnHurt hook
         public override void SetStaticDefaults()
         {
@@ -22,7 +22,7 @@ namespace GivlsWeapons.Content.Buffs
         }
     }
 
-    internal class InstaKillCursePlayer : ModPlayer
+    public class InstaKillCursePlayer : ModPlayer
     { //For some reason the player doesn't always appear to die right away on other clients. I don't know how to fix this yet, so I'll just be leaving it in.
     //If I do find a fix, I may allow the bug to happen during halloween because it fits thematically and doesn't affect gameplay too much
         public override void OnHurt(Player.HurtInfo info) //If the player is hurt but not killed, check for the buff and kill them anyway if they have it

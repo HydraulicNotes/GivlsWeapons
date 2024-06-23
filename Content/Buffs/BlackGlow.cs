@@ -5,7 +5,7 @@ using GivlsWeapons.Content.Dusts;
 
 namespace GivlsWeapons.Content.Buffs
 {
-    internal class BlackGlow : ModBuff
+    public class BlackGlow : ModBuff
     {
         public override void SetStaticDefaults()
         {

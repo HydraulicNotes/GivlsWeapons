@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace GivlsWeapons.Content.Items.Potions
 {
-    internal class CursedFlask : ModItem
+    public class CursedFlask : ModItem
     {
         const int CURSEDURATION = 1200; //Base duration for the potion curse 
         public override void SetStaticDefaults()
