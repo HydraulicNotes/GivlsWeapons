@@ -68,15 +68,16 @@ namespace GivlsWeapons.Helpers
 			}
 		}
 		/// <summary>
-		/// Turn a projectile transparent and zero out its damage and velocity. Used to disable most projectile behavior while leaving a Projectile instance intact.
+		/// Disables most default projectile behavior while leaving the projectile intact
 		/// </summary>
 		/// <param name="proj"></param>The projectile to disable
-		/// <param name="duration"></param>How long in ticks the projectile should survive. Don't multiply by extraUpdates as that is already done by the method.
 		public static void DisableProjectile(Projectile proj)
 		{
 			proj.damage = 0;
 			proj.alpha = 255;
 			proj.velocity = Vector2.Zero;
+			proj.noEnchantments = true;
+			proj.noEnchantmentVisuals = true;
 		}
 		public static Rectangle ToRectangle(this Vector2 vector)
 		{

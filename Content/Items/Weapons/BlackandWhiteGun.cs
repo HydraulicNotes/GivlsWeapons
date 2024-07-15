@@ -8,8 +8,8 @@ using System.Linq;
 using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using System;
-
-
+using GivlsWeapons.Core.Systems.PixelationSystem;
+using Terraria.Audio;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -29,20 +29,20 @@ namespace GivlsWeapons.Content.Items.Weapons
             Item.rare = ItemRarityID.LightRed;
             Item.value = 100000;
 
-            Item.useTime = 16;
-            Item.useAnimation = 16;
+            Item.useTime = 18;
+            Item.useAnimation = 18;
             //Item.reuseDelay = 4;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.autoReuse = false;
 
             Item.damage = 45;
             Item.DamageType = DamageClass.Ranged;
-            Item.crit = 7;
+            Item.crit = 4;
             Item.knockBack = 3.5f;
             Item.noMelee = true;
             Item.useAmmo = AmmoID.Bullet;
 
-            Item.shootSpeed = 50f;
+            Item.shootSpeed = 12f;
             Item.shoot = ProjectileID.PurificationPowder;
 
             Item.UseSound = SoundID.Item41;
@@ -51,7 +51,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             if (Combo == ComboLength - 1)
             {
-                Projectile.NewProjectile(source, position, velocity * 0.7f, ModContent.ProjectileType<YinYang>(), damage, knockback, player.whoAmI);
+                Projectile.NewProjectile(source, position, velocity.RotatedByRandom(MathHelper.ToRadians(45f)) * 2.7f, ModContent.ProjectileType<YinYang>(), damage, knockback, player.whoAmI);
             }
             Combo = (Combo + 1) % ComboLength;
             return true;
@@ -114,7 +114,7 @@ namespace GivlsWeapons.Content.Items.Weapons
                         Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Main.rand.NextVector2CircularEdge(2, 2), ModContent.ProjectileType<YinYangBullet>(), Projectile.damage, Projectile.knockBack, Projectile.owner, ai0: Projectile.identity, ai1: 1f);
                     } */
                     int bulletCount = 0;
-                    for (int i = 0; i < Main.projectile.Length; i++)
+                    /*for (int i = 0; i < Main.projectile.Length; i++)
                     {
                         if (bulletCount >= 6 || bulletCount >= owner.ownedProjectileCounts[Type] - 1) break;
                         Projectile proj = Main.projectile[i];
@@ -123,18 +123,18 @@ namespace GivlsWeapons.Content.Items.Weapons
                             SpawnBullet(bulletCount % 2 == 0, proj.Center);
                             bulletCount++;
                         }
-                    }
+                    }*/
                     for (int i = 0; i < Main.npc.Length; i++)
                     {
-                        if (bulletCount >= 6) break;
+                        if (bulletCount >= 4) break;
                         NPC target = Main.npc[i];
-                        if (target.CanBeChasedBy(this))
+                        if (target.DistanceSQ(Projectile.position) <= 409600 && target.CanBeChasedBy(this)) //max distance is 40 tiles ((40 * 16)^2)
                         {
                             SpawnBullet(bulletCount % 2 == 0, target.Center);
                             bulletCount++;
                         }
                     }
-                    while (bulletCount < 6)
+                    while (bulletCount < 4)
                     {
                         SpawnBullet(bulletCount % 2 == 0, Projectile.Center + Main.rand.NextVector2CircularEdge(1, 1));
                         bulletCount++;
@@ -147,12 +147,12 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public void SpawnBullet(bool isBlack, Vector2 targPos)
         {
-            Vector2 velocity = Vector2.One;
+            Vector2 velocity;
             if (targPos == Projectile.Center)
             {
                 targPos = Projectile.Center + Main.rand.NextVector2CircularEdge(1, 1);
             }
-            velocity = Vector2.Normalize(targPos - Projectile.Center) * 2;
+            velocity = Vector2.Normalize(targPos - Projectile.Center) * 4;
 
             Projectile.NewProjectile(Projectile.GetSource_FromThis(),
             Projectile.Center,
@@ -165,7 +165,18 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            Projectile.velocity *= -0.7f; //Add actual bounce physics
+            // If the projectile hits the left or right side of the tile, reverse the X velocity
+            if (Math.Abs(Projectile.velocity.X - oldVelocity.X) > float.Epsilon)
+            {
+                Projectile.velocity.X = -oldVelocity.X * 0.7f; //multiply to make it slow on bouncing
+            }
+
+            // If the projectile hits the top or bottom side of the tile, reverse the Y velocity
+            if (Math.Abs(Projectile.velocity.Y - oldVelocity.Y) > float.Epsilon)
+            {
+                Projectile.velocity.Y = -oldVelocity.Y * 0.7f;
+            }
+
             return false;
         }
         public override bool? CanDamage()
@@ -179,7 +190,6 @@ namespace GivlsWeapons.Content.Items.Weapons
         const int LENGTH = 100;
         private List<Vector2> cache;
         private Trail trail;
-        private Trail trail2;
 
         private float trailWidth = 0.1f;
         public int BulletType
@@ -192,21 +202,23 @@ namespace GivlsWeapons.Content.Items.Weapons
             Black,
             White
         }
+        private ref float HomingTimer => ref Projectile.ai[2];
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailingMode[Type] = 0;
-            ProjectileID.Sets.TrailCacheLength[Type] = 30; //Remember to increase base velocity
+            ProjectileID.Sets.TrailCacheLength[Type] = 30;
+            ProjectileID.Sets.CultistIsResistantTo[Type] = true;
         }
         public override void SetDefaults()
         {
             Projectile.width = 16;
             Projectile.height = 16;
-            Projectile.timeLeft = 6000;
+            Projectile.timeLeft = 3000;
 
             Projectile.aiStyle = ProjAIStyleID.Arrow;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.extraUpdates = 100;
+            Projectile.extraUpdates = 5;
             Projectile.penetrate = -1;
 
             Projectile.usesLocalNPCImmunity = true;
@@ -216,29 +228,91 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public override void AI()
         {
-            if (Projectile.numUpdates == Projectile.extraUpdates - 1)
+            if (!disabled)
             {
-                ManageCaches();
-                ManageTrail();
+                if (HomingTimer <= 540) HomingTimer++;
+                float maxDetectRadius = 640f; // The maximum radius at which a projectile can detect a target
+                float projSpeed = 4f; // The speed at which the projectile moves towards the target
+
+                // Trying to find NPC closest to the projectile
+                NPC closestNPC = FindClosestNPC(maxDetectRadius);
+                if (closestNPC != null)
+                {
+                    float targetAngle = Projectile.Center.AngleTo(closestNPC.Center);
+                    Projectile.velocity = Projectile.velocity.ToRotation().AngleTowards(targetAngle, MathHelper.ToRadians(1.2f * HomingTimer / 90f)).ToRotationVector2() * projSpeed;
+                    Projectile.rotation = Projectile.velocity.ToRotation();
+                }
+
+                if(Projectile.timeLeft <= 600) 
+                {
+                    Helper.DisableProjectile(Projectile);
+                    disabled = true;
+                }
             }
+
+            ManageCaches();
+            ManageTrail();
+        }
+        public NPC FindClosestNPC(float maxDetectDistance)
+        {
+            NPC closestNPC = null;
+
+            // Using squared values in distance checks will let us skip square root calculations, drastically improving this method's speed.
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+
+            // Loop through all NPCs
+            foreach (var target in Main.ActiveNPCs)
+            {
+                // Check if NPC able to be targeted. It means that NPC is
+                // 1. active (alive)
+                // 2. chaseable (e.g. not a cultist archer)
+                // 3. max life bigger than 5 (e.g. not a critter)
+                // 4. can take damage (e.g. moonlord core after all it's parts are downed)
+                // 5. hostile (!friendly)
+                // 6. not immortal (e.g. not a target dummy)
+                if (target.CanBeChasedBy())
+                {
+                    // The DistanceSquared function returns a squared distance between 2 points, skipping relatively expensive square root calculations
+                    float sqrDistanceToTarget = Vector2.DistanceSquared(target.Center, Projectile.Center);
+
+                    // Check if it is within the radius and the projectile has line of sight
+                    if (sqrDistanceToTarget < sqrMaxDetectDistance && Collision.CanHitLine(Projectile.Center, 0, 0, target.Center, 0, 0))
+                    {
+                        sqrMaxDetectDistance = sqrDistanceToTarget;
+                        closestNPC = target;
+                    }
+                }
+            }
+
+            return closestNPC;
         }
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             if(!disabled) Helper.DisableProjectile(Projectile);
-            ManageCaches();
             disabled = true;
         }
         public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             if(!disabled) Helper.DisableProjectile(Projectile);
-            ManageCaches();
             disabled = true;
         }
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            if(!disabled) Helper.DisableProjectile(Projectile);
-            ManageCaches();
-            disabled = true;
+            Collision.HitTiles(Projectile.position, Projectile.velocity, Projectile.width, Projectile.height);
+            SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
+
+            // If the projectile hits the left or right side of the tile, reverse the X velocity
+            if (Math.Abs(Projectile.velocity.X - oldVelocity.X) > float.Epsilon)
+            {
+                Projectile.velocity.X = -oldVelocity.X;
+            }
+
+            // If the projectile hits the top or bottom side of the tile, reverse the Y velocity
+            if (Math.Abs(Projectile.velocity.Y - oldVelocity.Y) > float.Epsilon)
+            {
+                Projectile.velocity.Y = -oldVelocity.Y * 0.7f;
+            }
+
             return false;
         }
         public override bool PreKill(int timeLeft)
@@ -273,40 +347,30 @@ namespace GivlsWeapons.Content.Items.Weapons
 
         private void ManageTrail()
         {
-            trail ??= new Trail(Main.instance.GraphicsDevice, 50, new RoundedTip(12), factor => (10 + factor * 25) * trailWidth, factor => new Color(120, 20 + (int)(100 * factor.X), 255) * factor.X);
+            trail ??= new Trail(Main.instance.GraphicsDevice, 50, new NoTip(), factor => (40 + factor * 100) * trailWidth, factor => new Color(240, 240, 240) * factor.Y);
 
             trail.Positions = cache.ToArray();
-
-            trail2 ??= new Trail(Main.instance.GraphicsDevice, 50, new RoundedTip(6), factor => (80 + 0 + factor * 0) * trailWidth, factor => new Color(100, 20 + (int)(60 * factor.X), 255) * factor.X * 0.15f);
-
-            trail2.Positions = cache.ToArray();
 
             if (Projectile.velocity.Length() > 1)
             {
                 trail.NextPosition = Projectile.Center + Projectile.velocity;
-                trail2.NextPosition = Projectile.Center + Projectile.velocity;
             }
         }
 
         public void DrawPrimitives()
         {
-            Effect effect = Filters.Scene["Fuck"].GetShader().Shader;
-
+            Effect effect = Filters.Scene["Compile/BlackAndWhiteTrail"].GetShader().Shader;
             var world = Matrix.CreateTranslation(-Main.screenPosition.Vec3());
             Matrix view = Main.GameViewMatrix.TransformationMatrix;
             var projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
 
-            effect.Parameters["time"].SetValue(Main.GameUpdateCount * 0.02f);
-            effect.Parameters["repeats"].SetValue(8f);
+            effect.Parameters["time"].SetValue(Main.GameUpdateCount * 0.1f);
+            effect.Parameters["repeats"].SetValue(5f);
             effect.Parameters["transformMatrix"].SetValue(world * view * projection);
-            effect.Parameters["sampleTexture"].SetValue(ModContent.Request<Texture2D>("GivlsWeapons/Assets/Textures/GlowTrail").Value);
-            effect.Parameters["sampleTexture2"].SetValue(ModContent.Request<Texture2D>("GivlsWeapons/Assets/Textures/DatsuzeiFlameMap2").Value);
+            effect.Parameters["sampleTexture"].SetValue(ModContent.Request<Texture2D>("GivlsWeapons/Assets/Textures/TrailTex").Value);
+            effect.Parameters["sampleTexture2"].SetValue(ModContent.Request<Texture2D>("GivlsWeapons/Assets/Textures/noiseTexture3").Value);
 
             trail?.Render(effect);
-
-            effect.Parameters["sampleTexture2"].SetValue(TextureAssets.MagicPixel.Value);
-
-            trail2?.Render(effect);
         }
         public override bool PreDraw(ref Color lightColor)
         {

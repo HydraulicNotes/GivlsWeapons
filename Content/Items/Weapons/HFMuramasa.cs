@@ -274,6 +274,7 @@ public class HFMuramasaSheath : PlayerDrawLayer
                     drawInfo.drawPlayer.direction == 1 ? SpriteEffects.FlipVertically : SpriteEffects.None,
                     0
                     ));
+
                     drawInfo.DrawDataCache.Add(new DrawData(
                     TextureAssets.Extra[98].Value,
                     starPosition,

@@ -43,7 +43,7 @@ Mods: {
 
 			BlackandWhiteGun: {
 				DisplayName: Black & White
-				Tooltip: Every sixth shot fires a Yin-Yang which when shot explodes into black and white bullets that target enemies
+				Tooltip: Every sixth shot fires a dao which explodes when shot into homing black & white bullets
 			}
 
 			BoringWand: {

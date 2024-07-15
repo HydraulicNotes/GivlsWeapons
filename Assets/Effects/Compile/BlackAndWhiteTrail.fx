@@ -1,5 +1,5 @@
-float time;
 float repeats;
+float time;
 
 matrix transformMatrix;
 
@@ -36,20 +36,16 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	float2 pos = float2(input.TexCoords.x * repeats, 0.25 + input.TexCoords.y * 0.5);
+	float2 st = float2(input.TexCoords.x * repeats, 0.25 + input.TexCoords.y * 0.5);
 
-	float3 color = tex2D(samplerTex, pos + float2(time, 0)).xyz;
-	float3 color2 = tex2D(samplerTex, pos + float2(-time * 1.5, 0)).xyz * 0.5;
-
-    //float sam = tex2D(samplerTex2, float2(pos.y, time)).x;
-    //float mult = tex2D(samplerTex2, pos).x + (input.Color.g * -2.0);
-
-    float4 output = float4((color + color2) * input.Color * (1.0 + color.x * 2.0), color.x * input.Color.w);
-
-    //if((input.Color.g) < mult)
-        //output *= sam + input.Color.g * 2;
+    float intensity = tex2D(samplerTex, st + float2(time, 0)).r;
+    
+    float mult = tex2D(samplerTex2, st + float2(-time * 1.5, 0)).r;
+    
+    float4 output = float4(input.Color.xyz * intensity * mult, intensity * mult);
 
     return output;
+
 }
 
 technique Technique1
