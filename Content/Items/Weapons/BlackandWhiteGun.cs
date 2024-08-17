@@ -24,8 +24,8 @@ namespace GivlsWeapons.Content.Items.Weapons
 
         public override void SetDefaults()
         {
-            Item.width = 22;
-            Item.height = 15;
+            Item.width = 26;
+            Item.height = 13;
             Item.rare = ItemRarityID.LightRed;
             Item.value = 100000;
 
@@ -310,7 +310,7 @@ namespace GivlsWeapons.Content.Items.Weapons
             // If the projectile hits the top or bottom side of the tile, reverse the Y velocity
             if (Math.Abs(Projectile.velocity.Y - oldVelocity.Y) > float.Epsilon)
             {
-                Projectile.velocity.Y = -oldVelocity.Y * 0.7f;
+                Projectile.velocity.Y = -oldVelocity.Y;
             }
 
             return false;

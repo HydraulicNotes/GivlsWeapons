@@ -7,6 +7,7 @@ using Terraria.Audio;
 using System;
 using Terraria.GameContent;
 using GivlsWeapons.Common.Players;
+using GivlsWeapons.Common.Projectiles;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -53,7 +54,7 @@ namespace GivlsWeapons.Content.Items.Weapons
                 foreach (var p in Main.projectile.Take(Main.maxProjectiles).Where(x => x.active && x.owner == player.whoAmI && x.type == ModContent.ProjectileType<TeleportingAxeProjectile>() && x.ai[0] == axeType))
                 { //look for an axe of the correct type that's owned by the player. If one is found then teleport, kill it, and don't spawn the projectile
                     player.Teleport(new Vector2(p.Top.X, p.Top.Y - player.height * 0.5f), TeleportationStyleID.RodOfDiscord);
-                    player.AddImmuneTime(ImmunityCooldownID.General, 8); //Prevents unexpected hits right after teleporting
+                    player.AddImmuneTime(ImmunityCooldownID.General, 10); //Prevents unexpected hits right after teleporting
                     p.Kill();
                     axeOfTypeNotFound = false;
                     if (axeType == 0) //finally, reset the player's teleport for that axe
@@ -65,7 +66,7 @@ namespace GivlsWeapons.Content.Items.Weapons
                         player.GetModPlayer<TeleportingAxePlayer>().pinkAxeReady = false;
                     }
                 }
-                if (axeOfTypeNotFound && player.GetModPlayer<ReuseTimer>().Timer < 10) //checks for continuous uses so holding the mouse button won't trigger a throw
+                if (axeOfTypeNotFound && player.GetModPlayer<ReuseTimer>().holdTime < player.itemAnimationMax) //checks for continuous uses so holding the mouse button won't trigger a throw
                 { //Throw an axe of the respective type. Spawns slightly higher so it doesn't hit the ground instantly.
                     Projectile.NewProjectile(source, new Vector2(position.X, position.Y - 15f), velocity, ModContent.ProjectileType<TeleportingAxeProjectile>(), damage, knockback, player.whoAmI, axeType);
                 }
@@ -88,24 +89,6 @@ namespace GivlsWeapons.Content.Items.Weapons
 
             return false;
         }
-
-        /* public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
-        {
-            int axeType = player.altFunctionUse == 2 ? 1 : 0; 
-            bool axeOfTypeNotFound = true;
-
-            foreach (var p in Main.projectile.Take(Main.maxProjectiles).Where(x => x.active && x.owner == player.whoAmI && x.type == ModContent.ProjectileType<TeleportingAxeProjectile>() && x.ai[0] == axeType))
-            { //look for an axe of the correct type that's owned by the player. If one is found, teleport, kill it, and don't spawn the projectile
-                player.Teleport(p.Top, TeleportationStyleID.RodOfDiscord);
-                p.Kill();
-                axeOfTypeNotFound = false;
-            }
-            if (axeOfTypeNotFound)
-            { //Identical to what would happen if we returned true, except we set the type of axe through ai0
-                Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, axeType);
-            }
-            return false;
-        } */
 
         public override bool AltFunctionUse(Player player)
         {
@@ -157,6 +140,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         public override void SetStaticDefaults()
         {
             Main.projFrames[Projectile.type] = 2;
+            PVPHitDictionaries.RegisterOnHitAction<TeleportingAxeProjectile>(OnHitPlayerFixed);
         }
 
         public override void OnSpawn(IEntitySource source)
@@ -206,7 +190,16 @@ namespace GivlsWeapons.Content.Items.Weapons
                     AirTimer = -1; // -1 indicates that the projectile is in a tile.
                 }
             }
-            //SetVisualOffsets();
+        }
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (AxeType == 0f) target.AddBuff(BuffID.Frostburn2, 240);
+            else target.AddBuff(BuffID.ChaosState, 900);
+        }
+        public static void OnHitPlayerFixed(Player player, Projectile source, Player.HurtInfo info)
+        {
+            if (source.ai[0] == 0f) player.AddBuff(BuffID.Frostburn2, 240);
+            else player.AddBuff(BuffID.ChaosState, 900);
         }
         public override void SendExtraAI(BinaryWriter writer)
         {
@@ -233,7 +226,6 @@ namespace GivlsWeapons.Content.Items.Weapons
             DebugUtils.AABBLineVisualizer(startPoint, endPoint, 5); */
             return false;
         }
-
         public override bool? CanDamage()
         {
             return Projectile.velocity.Length() > 0f ? null : false; //if the axe is moving really slow (should only be when stuck in a tile), don't hit. Otherwise, follow default rules.
@@ -305,6 +297,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[Type] = true;
+            PVPHitDictionaries.RegisterOnHitAction<TeleportingAxeSwingProjectile>(OnHitPlayerFixed);
         }
 
         public override void SetDefaults()
@@ -481,6 +474,15 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             RuneGlow = 1;
             Projectile.netUpdate = true;
+            if (CurrentAttack == AttackType.Swing || CurrentAttack == AttackType.BackSwing) target.AddBuff(BuffID.Frostburn2, 240);
+            else target.AddBuff(BuffID.ChaosState, 900);
+        }
+        public static void OnHitPlayerFixed(Player player, Projectile source, Player.HurtInfo info)
+        {
+            source.localAI[2] = 1;
+            source.netUpdate = true;
+            if (source.ai[0] <= 1) player.AddBuff(BuffID.Frostburn2, 240);
+            else player.AddBuff(BuffID.ChaosState, 900);
         }
         //Thanks to the amazing power of Tmodloader, this hook doesn't run for PvP hits, making it useless
         /*         public override void OnHitPlayer(Player target, Player.HurtInfo info)
@@ -550,7 +552,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         // Function facilitating the first half of the swing
         private void ExecuteStrike()
         {
-            Progress = MathHelper.SmoothStep(0, SWINGRANGE, (1f - UNWIND) * Timer / execTime);
+            Progress = MathHelper.Lerp(0, SWINGRANGE, Easings.InCubic((1f - UNWIND) * Timer / execTime));
 
             if (Timer >= execTime)
             {
@@ -561,7 +563,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         // Function facilitating the latter half of the swing where the sword disappears
         private void UnwindStrike()
         {
-            Progress = MathHelper.SmoothStep(0, SWINGRANGE, (1f - UNWIND) + UNWIND * Timer / hideTime);
+            Progress = MathHelper.Lerp(0, SWINGRANGE, Easings.InCubic((1f - UNWIND) + UNWIND * Timer / hideTime));
             Projectile.Opacity = 1f - (Timer / prepTime); //fade out
             if (Timer >= hideTime)
             {

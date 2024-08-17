@@ -66,14 +66,14 @@ namespace GivlsWeapons.Content.Items.Accessories
         }
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if ((hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed) && target.type != NPCID.TargetDummy)
+            if (hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed)
             {
                 TrySpawningCrystal(target);
             }
         }
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         { //Check for melee, then true melee by checking if heldProj is set, then distance to account for new excalibur-types, then for harpoon and flairon ai. Distance is wider than needed to account for other modders' potential bad code.
-            if ((hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed) && target.type != NPCID.TargetDummy &&
+            if ((hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed) &&
             (Player.heldProj == proj.whoAmI || proj.Distance(Player.Center) <= 8f || proj.aiStyle == ProjAIStyleID.Harpoon || proj.aiStyle == ProjAIStyleID.Flairon))
             { //True melee projectiles that don't set Player.heldProj, and don't anchor themselves to the player's center or use the Flail or Flairon ai style won't work. Projectile melee weapons at extremely close range will, but that hardly matters.
                 TrySpawningCrystal(target);
@@ -86,26 +86,23 @@ namespace GivlsWeapons.Content.Items.Accessories
         }
         void TrySpawningCrystal(NPC target)
         {
-            if (Main.myPlayer == Player.whoAmI && AccessoryEquipped)
+            if (Main.myPlayer == Player.whoAmI && AccessoryEquipped && CooldownTimer >= DURATION)
             {
-                if (CooldownTimer >= DURATION)
+                //Vector2 spawnPos = (Player.Center + target.Center) * 0.5f;
+                Vector2 spawnVel = target.Center.AngleTo(Player.Center).ToRotationVector2() * target.Center.Distance(Player.Center) * 0.064f;
+                Projectile.NewProjectile(Player.GetSource_Accessory(Accessory), target.Center, spawnVel, ModContent.ProjectileType<AltLeafCrystal>(), 100, 10f, Player.whoAmI);
+                SoundEngine.PlaySound(SoundID.Item8);
+                for (int i = 0; i < 15; i++)
                 {
-                    //Vector2 spawnPos = (Player.Center + target.Center) * 0.5f;
-                    Vector2 spawnVel = target.Center.AngleTo(Player.Center).ToRotationVector2() * target.Center.Distance(Player.Center) * 0.064f;
-                    Projectile.NewProjectile(Player.GetSource_Accessory(Accessory), target.Center, spawnVel, ModContent.ProjectileType<AltLeafCrystal>(), 100, 10f, Player.whoAmI);
-                    SoundEngine.PlaySound(SoundID.Item8);
-                    for (int i = 0; i < 15; i++)
-                    {
-                        Dust.NewDustPerfect(target.Center, DustID.ChlorophyteWeapon, Main.rand.NextFloat(0, MathF.Tau).ToRotationVector2(), Scale: 0.7f);
-                    }
-                    if (CooldownTimer >= DURATION * 2)
-                    {
-                        CooldownTimer = 0;
-                    }
-                    else
-                    {
-                        CooldownTimer -= DURATION;
-                    }
+                    Dust.NewDustPerfect(target.Center, DustID.ChlorophyteWeapon, Main.rand.NextFloat(0, MathF.Tau).ToRotationVector2(), Scale: 0.7f);
+                }
+                if (CooldownTimer >= DURATION * 2)
+                {
+                    CooldownTimer = 0;
+                }
+                else
+                {
+                    CooldownTimer -= DURATION;
                 }
             }
         }

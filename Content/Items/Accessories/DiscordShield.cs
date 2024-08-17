@@ -5,6 +5,8 @@ using Terraria.GameContent.Creative;
 using Microsoft.Xna.Framework;
 using System.IO;
 using Terraria.ModLoader.IO;
+using System;
+using GivlsWeapons.Content.Dusts;
 
 namespace GivlsWeapons.Content.Items.Accessories
 {
@@ -48,10 +50,10 @@ namespace GivlsWeapons.Content.Items.Accessories
         //public const int DashUp = 1;
         public const int DashRight = 2;
         public const int DashLeft = 3;
-        public const int DashCooldown = 45; // Time (frames) between starting dashes. If this is shorter than DashDuration you can start a new dash before an old one has finished
-        public const int DashDuration = 15; // Duration of the dash afterimage effect in frames
+        public const int DashCooldown = 65; // Time (frames) between starting dashes. If this is shorter than DashDuration you can start a new dash before an old one has finished
+        public const int DashDuration = 27; // Duration of the dash afterimage effect in frames
 
-        public const float DashVelocity = 10.5f;
+        public const float DashVelocity = 21f;
 
         public int DashDir = -1;
 
@@ -114,14 +116,37 @@ namespace GivlsWeapons.Content.Items.Accessories
                 // Here you'd be able to set an effect that happens when the dash first activates
                 // Some examples include:  the larger smoke effect from the Master Ninja Gear and Tabi
             }
-            /* if (DashTimer > 0)
-                DashTimer--; */
+            
             if (Player.eocDash > 0 && CanUseDash())
             { // dash is active
               // This is where we set the afterimage effect.  You can replace these two lines with whatever you want to happen during the dash
               // Some examples include:  spawning dust where the player is, adding buffs, making the player immune, etc.
               // Here we take advantage of "player.eocDash" and "player.armorEffectDrawShadowEOCShield" to get the Shield of Cthulhu's afterimage effect
                 Player.armorEffectDrawShadowEOCShield = true;
+
+                float speed = Math.Abs(Player.velocity.X);
+                float maxSpeed = Math.Max(Player.accRunSpeed, Player.maxRunSpeed);
+                float highThreshold = 14f;
+                float highDeceleration = 0.985f;
+                float lowDeceleration = 0.95f;
+
+                if(speed > highThreshold)
+                {
+                    Player.velocity.X *= highDeceleration;
+                }
+                else if(speed > maxSpeed)
+                {
+                    Player.velocity.X *= lowDeceleration;
+                }
+                else if(Player.velocity.X != 0)
+                {
+                    Player.velocity.X = maxSpeed * Math.Sign(Player.velocity.X);
+                }
+
+                for (int i = 0; i < 6f * ((float)Player.eocDash / DashDuration) + 1; i++)
+                {
+                    Dust.NewDustPerfect(Main.rand.NextVector2FromRectangle(Player.Hitbox), ModContent.DustType<DiscordDust>(), Player.velocity * 0.1f, Scale: Main.rand.NextFloat(0.8f, 1.2f));
+                }
 
                 if (Player.eocHit < 0 && Main.myPlayer == Player.whoAmI)
                 {
@@ -136,8 +161,8 @@ namespace GivlsWeapons.Content.Items.Accessories
                         }
                         if (dashHitbox.Intersects(enemyHitBox))
                         {
-                            float dashDamage = Player.GetDamage(DamageClass.Melee).ApplyTo(80);
-                            float dashKb = Player.GetKnockback(DamageClass.Melee).ApplyTo(9f);
+                            float dashDamage = Player.GetTotalDamage(DamageClass.Melee).ApplyTo(80);
+                            float dashKb = Player.GetTotalKnockback(DamageClass.Melee).ApplyTo(9f);
                             bool dashCrit = false;
                             int kbDirection = 0;
                             if (Player.velocity.X < 0f)
@@ -153,7 +178,7 @@ namespace GivlsWeapons.Content.Items.Accessories
                                 dashDamage *= 2.5f;
                             }
                             target.AddBuff(BuffID.ChaosState, 480);
-                            if (Main.rand.Next(100) < Player.GetCritChance<MeleeDamageClass>() + 4)
+                            if (Main.rand.Next(100) < Player.GetTotalCritChance(DamageClass.Melee) + 4)
                             {
                                 dashCrit = true;
                                 dashDamage *= 2f;
@@ -181,7 +206,7 @@ namespace GivlsWeapons.Content.Items.Accessories
                             if (!Collision.SolidCollision(mousePos, Player.Hitbox.Width, Player.Hitbox.Height))
                             {
                                 Player.Teleport(mousePos, TeleportationStyleID.RodOfDiscord);
-                                NetMessage.SendData(65, -1, -1, null, 0, Player.whoAmI, mousePos.X, mousePos.Y, 1);
+                                NetMessage.SendData(MessageID.TeleportEntity, -1, -1, null, 0, Player.whoAmI, mousePos.X, mousePos.Y, 1);
                             }
                         }
                     }

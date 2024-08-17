@@ -55,17 +55,21 @@ namespace GivlsWeapons.Helpers
 		/// <param name="power">The strength of the weakening effect. Will kill the target if it is greater than or equal to targPower</param>
 		/// <param name="targPower">The target projectile's resistance to the effect. </param>
 		/// <param name="reduceDamage">Whether to reduce the damage of the target, or just its scale</param>
-		public static void WeakenProjectile(Projectile target, float power, float targPower, bool reduceDamage = true)
+		/// <param name="kill">Whether to kill the projectile if it gets too small or weak. Only set to false if you want to kill the projectile manually</param>
+		public static bool WeakenProjectile(Projectile target, float power, float targPower, bool reduceDamage = true, bool kill = true)
 		{
 			target.scale *= (targPower - power) / targPower;
 			if(reduceDamage)
 			{
 				target.damage = (int)(target.damage * ((targPower - power) / targPower));
 			}
-			if(power >= targPower || target.damage <= 0 || target.scale <= 0f)
+
+			if((power >= targPower || target.damage <= 0 || target.scale <= 0f) && kill)
 			{
 				target.Kill();
+				return true;
 			}
+			else return false;
 		}
 		/// <summary>
 		/// Disables most default projectile behavior while leaving the projectile intact
@@ -73,6 +77,7 @@ namespace GivlsWeapons.Helpers
 		/// <param name="proj"></param>The projectile to disable
 		public static void DisableProjectile(Projectile proj)
 		{
+			proj.tileCollide = false;
 			proj.damage = 0;
 			proj.alpha = 255;
 			proj.velocity = Vector2.Zero;

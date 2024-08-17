@@ -22,8 +22,8 @@ Mods: {
 				DisplayName: Shield of Discord
 				Tooltip:
 					'''
-					Allows you to perform a dash which lets you teleport to the mouse cursor when it hits an enemy
-					The enemy receives chaos state instead of you, and will take damage if you or the enemy has chaos state.
+					Double tap to dash into the enemy, doing extra damage if the enemy has Chaos State.
+					Teleport to the mouse cursor when you hit with the dash, and inflict the enemy with Chaos State
 					'''
 			}
 
@@ -110,11 +110,15 @@ Mods: {
 
 			BreakerBullet: {
 				DisplayName: Breaker Bullet
-				Tooltip: Weakens enemy projectiles until they are destroyed
+				Tooltip:
+					'''
+					Weakens enemy projectiles until they are destroyed
+					Inflicts Shadowflame
+					'''
 			}
 
 			TeslaDaggers: {
-				Tooltip: ""
+				Tooltip: Throws two embedding daggers connected by an arc of lightning
 				DisplayName: Tesla Daggers
 			}
 
@@ -125,16 +129,6 @@ Mods: {
 
 			BalanceBullet: {
 				DisplayName: Balance Bullet
-				Tooltip: ""
-			}
-
-			steraksgage: {
-				DisplayName: steraksgage
-				Tooltip: ""
-			}
-
-			Moonfury: {
-				DisplayName: Moonfury
 				Tooltip: ""
 			}
 		}

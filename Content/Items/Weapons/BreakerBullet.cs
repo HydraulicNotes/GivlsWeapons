@@ -1,11 +1,12 @@
-using Terraria.GameContent.Creative;
-using Terraria.DataStructures;
-using Terraria.Graphics.Shaders;
-using GivlsWeapons.Effects;
 using System;
-using GivlsWeapons.Core.Systems.PixelationSystem;
-using GivlsWeapons.Helpers;
 using System.Linq;
+using GivlsWeapons.Common.Projectiles;
+using GivlsWeapons.Core.Systems.PixelationSystem;
+using GivlsWeapons.Effects;
+using GivlsWeapons.Helpers;
+using Terraria.DataStructures;
+using Terraria.GameContent.Creative;
+using Terraria.Graphics.Shaders;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -31,7 +32,7 @@ namespace GivlsWeapons.Content.Items.Weapons
             Item.damage = 15;
             Item.DamageType = DamageClass.Ranged;
             Item.knockBack = 3f;
-            Item.shootSpeed = 16f;
+            Item.shootSpeed = 5.3f;
             Item.shoot = ModContent.ProjectileType<BreakerBulletProjectile>();
         }
         public override void AddRecipes()
@@ -49,26 +50,27 @@ namespace GivlsWeapons.Content.Items.Weapons
         private ref float Timer => ref Projectile.localAI[0];
         public override void SetDefaults()
         {
-            /* Projectile.width = 12;
-            Projectile.height = 12;
-            Projectile.alpha = 255; //needed for fade-in to work
+            AIType = ProjectileID.Bullet;
+            Projectile.aiStyle = ProjAIStyleID.Arrow;
+            Projectile.width = 6;
+            Projectile.height = 6;
+            Projectile.timeLeft = 600;
 
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
-            Projectile.extraUpdates = 1;
-            Projectile.timeLeft = 600;
+            Projectile.extraUpdates = 2;
+            Projectile.penetrate = -1;
 
-            Projectile.usesIDStaticNPCImmunity = true;
-            Projectile.idStaticNPCHitCooldown = 10;
-            */
-            Projectile.aiStyle = ProjAIStyleID.Arrow;
-            AIType = ProjectileID.Bullet;
-            Projectile.CloneDefaults(ProjectileID.VenomBullet);
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 10;
+
+            Projectile.penetrate = -1;
         }
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailingMode[Projectile.type] = 3;
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
+            PVPHitDictionaries.RegisterOnHitAction<BreakerBulletProjectile>(OnHitPlayerFixed);
         }
         public override void OnSpawn(IEntitySource source)
         {
@@ -76,6 +78,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public override void AI()
         {
+            if (Projectile.damage <= 0) return;
             Player myOwner = Main.player[Projectile.owner];
             for (int i = 0; i < Main.projectile.Length; i++)
             {
@@ -96,7 +99,7 @@ namespace GivlsWeapons.Content.Items.Weapons
 
                     if (projSize <= 0f) //Kill checks are done early here to prevent division by 0 or negative scales
                     {
-                        Projectile.Kill();
+                        StartDeath();
                         break;
                     }
                     if (targSize <= 0f)
@@ -105,42 +108,46 @@ namespace GivlsWeapons.Content.Items.Weapons
                         continue;
                     }
 
-                    if (Projectile.penetrate > 0) //Decrements penetrate when degenerating projectiles, like how meteor bullets decrement penetrate when bouncing
-                    {
-                        Projectile.penetrate--;
-                    }
-                    else //The projectile will shrink if it has already hit a target or degenerated a projectile
-                    {
-                        //Projectile.scale *= (projSize - targSize) / projSize;
-                        Helper.WeakenProjectile(Projectile, targSize, projSize, reduceDamage: false);
-                    }
-                    //target.scale *= (targSize - projSize) / targSize;
-                    //target.damage = (int)(target.damage * ((targSize - projSize) / targSize));
-                    Helper.WeakenProjectile(target, projSize, targSize);
+                    //The projectile will shrink if it has already hit a target or degenerated a projectile
+                    Helper.WeakenProjectile(Projectile, targSize, projSize, reduceDamage: false, kill: false);
 
-                    //projSize = Projectile.width * Projectile.height * Projectile.scale;
-                    //targSize = target.width * target.height * target.scale;
+                    Helper.WeakenProjectile(target, projSize, targSize);
 
                     for (int j = 0; j < 12; j++)
                     {
-                        Dust.NewDustPerfect(Projectile.Center + (MathF.Tau / 12 * (float)j).ToRotationVector2(), DustID.ShadowbeamStaff);
+                        Dust.NewDustPerfect(Projectile.Center + (MathF.Tau / 12 * j).ToRotationVector2(), DustID.ShadowbeamStaff);
                     }
                 }
             }
             Timer++;
         }
-        public override void OnKill(int timeLeft)
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
+            target.AddBuff(BuffID.ShadowFlame, 180);
+            StartDeath();
+        }
+        public static void OnHitPlayerFixed(Player player, Projectile source, Player.HurtInfo info)
+        {
+            player.AddBuff(BuffID.ShadowFlame, 180);
+            Helper.DisableProjectile(source);
+            for (int j = 0; j < 12; j++)
+            {
+                Dust.NewDustPerfect(source.Center + (MathF.Tau / 12 * j).ToRotationVector2(), DustID.ShadowbeamStaff);
+            }
+        }
+        public override bool OnTileCollide(Vector2 oldVelocity)
+        {
+            Projectile.position += oldVelocity;
+            StartDeath();
+            Collision.HitTiles(Projectile.position, Projectile.velocity, Projectile.width, Projectile.height);
+            return false;
+        }
+        public void StartDeath()
+        {
+            Helper.DisableProjectile(Projectile);
             for (int j = 0; j < 12; j++)
             {
                 Dust.NewDustPerfect(Projectile.Center + (MathF.Tau / 12 * j).ToRotationVector2(), DustID.ShadowbeamStaff);
-            }
-        }
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            for (int j = 0; j < 12; j++)
-            {
-                Dust.NewDustPerfect(Projectile.Center + (MathF.Tau / 12 * (float)j).ToRotationVector2(), DustID.ShadowbeamStaff);
             }
         }
         private static VertexStrip vertexStrip = new VertexStrip();
@@ -158,7 +165,7 @@ namespace GivlsWeapons.Content.Items.Weapons
                 vertexStrip.DrawTrail();
                 Main.pixelShader.CurrentTechnique.Passes[0].Apply();
             });
-            Lighting.AddLight(Projectile.Center, Color.Purple.ToVector3());
+            if (Projectile.velocity.LengthSquared() > 1f) Lighting.AddLight(Projectile.Center, Color.Purple.ToVector3());
             return false;
         }
         private Color StripColors(float progressOnStrip)
@@ -181,17 +188,17 @@ namespace GivlsWeapons.Content.Items.Weapons
     public class BreakerBulletManager : ModPlayer
     {
         public int BreakerBulletsSpawned = 0;
-/*         public override void PreUpdate()
-        {
-            BreakerBulletsSpawned = 0;
-        } */
+        /*         public override void PreUpdate()
+                {
+                    BreakerBulletsSpawned = 0;
+                } */
         public override void PostUpdate()
         {
             foreach (var p in Main.projectile.Take(Main.maxProjectiles).Where(x => x.active && x.owner == Player.whoAmI
                     && x.type == ModContent.ProjectileType<BreakerBulletProjectile>() && x.ai[2] == 0f))
             {
                 p.ai[2] = ContentSamples.ItemsByType[Player.HeldItem.type].useAnimation * 50f / BreakerBulletsSpawned;
-                if(Player.HeldItem.type == ItemID.VortexBeater) p.ai[2] /= 4;
+                if (Player.HeldItem.type == ItemID.VortexBeater) p.ai[2] /= 4;
             }
             BreakerBulletsSpawned = 0;
         }

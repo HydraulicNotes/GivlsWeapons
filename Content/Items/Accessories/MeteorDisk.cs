@@ -1,6 +1,6 @@
 ﻿using Terraria.GameContent.Creative;
 using System.Linq;
-using Terraria.ID;
+using GivlsWeapons.Common.Projectiles;
 
 namespace GivlsWeapons.Content.Items.Accessories
 {
@@ -84,7 +84,11 @@ namespace GivlsWeapons.Content.Items.Accessories
 
             Projectile.alpha = 200;
         }
-
+        public override void SetStaticDefaults()
+        {
+            PVPHitDictionaries.RegisterOnHitAction<MeteorDiskAura>(OnHitPlayerFixed);
+            PVPHitDictionaries.RegisterModifyHitAction<MeteorDiskAura>(ModifyHitPlayerFixed);
+        }
         public override bool? CanCutTiles()
         {
             return false;
@@ -105,25 +109,24 @@ namespace GivlsWeapons.Content.Items.Accessories
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player owner = Main.player[Projectile.owner];
-            int manaToAdd = 1 + damageDone * 2;
+            int manaToAdd = damageDone * 2;
             owner.ManaEffect(manaToAdd);
             owner.statMana += manaToAdd;
 
             target.AddBuff(BuffID.OnFire, 180);
         }
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        public static void OnHitPlayerFixed(Player player, Projectile source, Player.HurtInfo info)
         {
-            Player owner = Main.player[Projectile.owner];
-            int manaToAdd = 1 + (int)(info.Damage * 0.2f);
+            Player owner = Main.player[source.owner];
+            int manaToAdd = info.Damage * 2;
             owner.ManaEffect(manaToAdd);
             owner.statMana += manaToAdd;
 
-            target.AddBuff(BuffID.OnFire, 60);
+            player.AddBuff(BuffID.OnFire, 180);
         }
-//Due to a bug in TML, this can't be fixed right now. ModifyHitPlayer runs only on the owner's client, even though the target client is the one that actually has authority over the hit
-/*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
-        { //Prevent from dealing knockback to players
-            modifiers.Knockback *= 0;
-        } */
+        public static void ModifyHitPlayerFixed(Player player, Projectile source, Player.HurtModifiers modifiers)
+        {
+            modifiers.HitDirectionOverride = Main.player[source.owner].direction;
+        }
     }
 }

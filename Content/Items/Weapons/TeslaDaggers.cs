@@ -46,14 +46,15 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if(player.ownedProjectileCounts[Item.shoot] >= 2)
+            if (player.ownedProjectileCounts[Item.shoot] >= 2)
             {
                 foreach (var p in Main.projectile.Take(Main.maxProjectiles).Where(x => x.active && x.owner == player.whoAmI))
                 {
                     p.Kill();
                 }
             }
-            return true;
+            Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai2: -1f);
+            return false;
         }
     }
 
@@ -62,8 +63,10 @@ namespace GivlsWeapons.Content.Items.Weapons
         private ref float DaggerType => ref Projectile.ai[0]; //Tracks whether this is the first or second dagger. * tracks whether this dagger is connected or not, and what dagger it's connected to
         private ref float AirTimer => ref Projectile.ai[1]; //Tracks time in the air, and whether the dagger is stuck in an enemy or tile
         private ref float StuckInNPC => ref Projectile.ai[2]; //Tracks which NPC this is stuck in
-        private ref float TargetOldRotation => ref Projectile.localAI[0]; //Used to allow stuck daggers to rotate with enemies that rotate
-        private ref float OtherDagger => ref Projectile.localAI[1];
+        private ref float InitialProjRot => ref Projectile.localAI[0]; //The target's last rotation
+        private ref float InitialNPCRot => ref Projectile.localAI[1]; //The relative position of the dagger when it hits
+        private Vector2 InitialOffset;
+        private ref float OtherDagger => ref Projectile.localAI[2];
         public override void SetDefaults()
         {
             Projectile.Size = Vector2.One * 36;
@@ -103,25 +106,22 @@ namespace GivlsWeapons.Content.Items.Weapons
             if (AirTimer == -2f)
             {
                 NPC target = Main.npc[(int)StuckInNPC];
+
                 if (target.active)
                 {
                     Projectile.velocity = Vector2.Zero;
                     if (Projectile.numUpdates == -1)//Only run on the first update, otherwise it will move more than the NPC does
                     {
-                        //Projectile.position = Projectile.position + (target.position - target.oldPosition);
-                        //Projectile.position = Projectile.position + (target.position - Projectile.oldPosition);
-                        Vector2 oldOffset = (target.oldPosition + target.Size / 2) - (Projectile.oldPosition + Projectile.Size / 2);
-                        Projectile.position += target.position - target.oldPosition;
+                        /* Projectile.position += target.position - target.oldPosition;
                         Projectile.Center = Helper.RotateAroundPoint(Projectile.Center, target.Center, target.rotation - TargetOldRotation);
+                        Projectile.rotation += target.rotation - TargetOldRotation;
+                        TargetOldRotation = target.rotation; */
 
-                        Projectile.rotation += (target.rotation - TargetOldRotation);
-                        TargetOldRotation = target.rotation;
-                        /*                         string text = "";
-                                                foreach(float rotation in target.oldRot)
-                                                {
-                                                    text = text + " " + rotation;
-                                                }
-                                                Main.NewText(text); */
+                        /* Projectile.Center = target.Center + RelativePosition.RotatedBy(InitialRotation - target.rotation);
+                        Projectile.rotation = InitialRotation + target.rotation; */
+                        
+                        Projectile.Center = target.Center + InitialOffset.RotatedBy(target.rotation - InitialNPCRot);
+                        Projectile.rotation = target.rotation + (InitialProjRot - InitialNPCRot);
                     }
                 }
                 else AirTimer = 35f;
@@ -129,8 +129,6 @@ namespace GivlsWeapons.Content.Items.Weapons
             else
             {
                 Vector2 collisionOffset = (Projectile.rotation + MathHelper.ToRadians(135f)).ToRotationVector2() * Projectile.height / 2;
-                //if (Collision.CanHitLine(Projectile.Center + collisionOffset, 0, 0, Projectile.Center - collisionOffset, 0, 0)) //checks the line between the points, and returns whether it collides with tiles
-                //if(!Collision.SolidCollision(Projectile.position, Projectile.width, Projectile.height))
                 if (!Collision.IsWorldPointSolid(Projectile.Center, true))
                 { //Runs if there is no collision
                     if (AirTimer == -1f) //if in ground state, switch to air state
@@ -176,7 +174,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public override void OnKill(int timeLeft)
         {
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Dust.NewDust(Projectile.Center, 0, 0, DustID.Electric, 0, 0);
             }
@@ -189,19 +187,27 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             AirTimer = -2f; // -2 indicates that the projectile is in an NPC
             StuckInNPC = target.whoAmI;
+            InitialOffset = Projectile.Center - target.Center;
+            InitialNPCRot = target.rotation;
+            InitialProjRot = Projectile.rotation;
         }
-        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) //Extra-precise collision is used since inaccurate collision would cause it to appear to float when stuck in enemies
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) //Extra-precise collision is used since normal collision would cause it to appear to float when stuck in enemies
         {
             Vector2 offset = (Projectile.rotation + MathHelper.ToRadians(135f)).ToRotationVector2() * Projectile.height / 2;
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), Projectile.Center, Projectile.Center - offset);
         }
-        /*         public override bool PreDraw(ref Color lightColor) // Use this to see the collision line
-                {
-                    Vector2 offset = (Projectile.rotation + MathHelper.ToRadians(135f)).ToRotationVector2() * Projectile.height / 2;
-                    DebugUtils.AABBLineVisualizer(Projectile.Center, Projectile.Center - offset, 10);
-                    return true;
-                } */
+        /* public override bool PreDraw(ref Color lightColor) // Use this to see the collision line
+        {
+            //Vector2 offset = (Projectile.rotation + MathHelper.ToRadians(135f)).ToRotationVector2() * Projectile.height / 2;
+            NPC target = Main.npc[(int)StuckInNPC];
+            DebugUtils.AABBLineVisualizer(target.Center, target.Center + (InitialRotation + target.rotation + MathHelper.ToRadians(135f)).ToRotationVector2() * InitialDistance, 10);
+            return true;
+        } */
     }
+
+
+
+
     public class TeslaArc : ModProjectile
     {
         public override string Texture => "GivlsWeapons/Assets/Textures/LightningBColor";
@@ -231,7 +237,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
         public override void AI()
         {
-            if(Projectile.timeLeft == 6000)
+            if (Projectile.timeLeft == 6000)
             {
                 Projectile.netUpdate = true;
             }
@@ -264,7 +270,7 @@ namespace GivlsWeapons.Content.Items.Weapons
             }
             else Projectile.Kill();
 
-            SoundEngine.PlaySound(new SoundStyle("GivlsWeapons/Assets/Sounds/TeslaArc") with 
+            SoundEngine.PlaySound(new SoundStyle("GivlsWeapons/Assets/Sounds/TeslaArc") with
             {
                 Volume = 0.24f,
                 Pitch = 1f,
@@ -301,7 +307,7 @@ namespace GivlsWeapons.Content.Items.Weapons
             { //Scales with distance from 60 to 100 tiles.
                 col = col * (1 - ((Distance - 960) / 640));
             }
-            if(Projectile.timeLeft <= 60)
+            if (Projectile.timeLeft <= 60)
             {
                 col = col * Easings.OutCubic((float)Projectile.timeLeft / 60f);
             }
