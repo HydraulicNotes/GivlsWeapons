@@ -1,4 +1,5 @@
-﻿using GivlsWeapons.Content.Buffs;
+﻿using GivlsWeapons.Common.Configs;
+using GivlsWeapons.Content.Buffs;
 using GivlsWeapons.Content.Dusts;
 using System;
 
@@ -12,7 +13,7 @@ namespace GivlsWeapons.Common.NPCs
         }
         public override void PostAI(NPC npc)
         {
-            if(npc.HasBuff(BuffID.ChaosState) && npc.position.DistanceSQ(npc.oldPosition) > 48 * 48)
+            if(ModContent.GetInstance<BuffConfig>().ChaosStateAffectsNPCs && npc.HasBuff(BuffID.ChaosState) && npc.position.DistanceSQ(npc.oldPosition) > 48 * 48)
             {
                 int hitDamage = 100;
                 if(Main.expertMode) hitDamage = 200;
@@ -23,7 +24,7 @@ namespace GivlsWeapons.Common.NPCs
         }
         public override void DrawEffects(NPC npc, ref Color drawColor)
         {
-            if (npc.HasBuff(BuffID.ChaosState))
+            if (ModContent.GetInstance<BuffConfig>().ChaosStateAffectsNPCs && npc.HasBuff(BuffID.ChaosState))
             {
                 int numToSpawn = Main.rand.Next(3);
 

@@ -1,6 +1,7 @@
 ﻿using Terraria.ID;
 using Terraria.DataStructures;
 using Terraria.GameContent.Creative;
+using GivlsWeapons.Common.Projectiles;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -47,6 +48,10 @@ namespace GivlsWeapons.Content.Items.Weapons
     }
     public class CrossAura : ModProjectile
     {
+        public override void SetStaticDefaults()
+        {
+            PVPHitDictionaries.modifyHurtFix[Type] = ModifyHitPlayerFixed;
+        }
         public override void SetDefaults()
         {
             Projectile.width = 364; //The size is massive, because this one projectile is the entire area of the Cross' attack
@@ -69,16 +74,14 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             Projectile.ai[0] = Main.player[Projectile.owner].direction;
         }
-
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             modifiers.HitDirectionOverride = (int)Projectile.ai[0];
         }
-/*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers) //Uncomment this when ModifyHitPlayer gets fixed
+        public static void ModifyHitPlayerFixed(Player target, Projectile source, ref Player.HurtModifiers modifiers)
         {
-            modifiers.HitDirectionOverride = (int)Projectile.ai[0];
-        } */
-
+            modifiers.HitDirectionOverride = (int)source.ai[0];
+        }
         public override bool? CanCutTiles()
         {
             return false;

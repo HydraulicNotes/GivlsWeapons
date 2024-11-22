@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using GivlsWeapons.Common.Projectiles;
 using ReLogic.Content;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -373,6 +374,8 @@ public class HFMuramasaProjectile : ModProjectile
     public override void SetStaticDefaults()
     {
         ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[Type] = true;
+        PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
+        PVPHitDictionaries.modifyHurtFix[Type] = ModifyHitPlayerFixed;
     }
 
     public override void SetDefaults()
@@ -633,19 +636,31 @@ public class HFMuramasaProjectile : ModProjectile
 
         Vector2 spawnPoint = Main.rand.NextVector2FromRectangle(target.Hitbox);
         float angle = spawnPoint.AngleTo(Main.rand.NextVector2FromRectangle(target.Hitbox));
-        Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), Projectile.damage, 0f, Owner.whoAmI, angle, target.whoAmI);
+        Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), Projectile.damage, 0f, Owner.whoAmI, angle, target.whoAmI, 0);
         if (CurrentAttack == AttackType.Quickdraw) //spawn an extra if it's a quickdraw. Add 90 degrees cause it makes a cool cross
         {
             angle += MathHelper.ToRadians(90f);
-            Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), Projectile.damage, 0f, Owner.whoAmI, angle, target.whoAmI);
+            Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), Projectile.damage, 0f, Owner.whoAmI, angle, target.whoAmI, 0);
         }
         Projectile.netUpdate = true;
     }
-
+    public static void OnHitPlayerFixed(Player target, Projectile source, Player.HurtInfo info)
+    {
+        Player Owner = Main.player[source.owner];
+        Vector2 spawnPoint = Main.rand.NextVector2FromRectangle(target.Hitbox);
+        float angle = spawnPoint.AngleTo(Main.rand.NextVector2FromRectangle(target.Hitbox));
+        Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), source.damage, 0f, Owner.whoAmI, angle, target.whoAmI, 1f);
+        if ((int)source.ai[0] == 9) //spawn an extra if it's a quickdraw. Add 90 degrees cause it makes a cool cross
+        {
+            angle += MathHelper.ToRadians(90f);
+            Projectile.NewProjectile(Owner.GetSource_ItemUse(Owner.HeldItem), spawnPoint, Vector2.Zero, ModContent.ProjectileType<HFMuramasaGlowingSlash>(), source.damage, 0f, Owner.whoAmI, angle, target.whoAmI, 1f);
+        }
+        source.netUpdate = true;
+    }
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
     {
         // Make knockback go away from player
-        modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
+        modifiers.HitDirectionOverride = Owner.direction;
 
         // If the NPC is hit by the spin attack, increase knockback slightly. Increase it even more and ignore half the enemy armor for the quickdraw
         if (CurrentAttack == AttackType.Spin)
@@ -656,21 +671,20 @@ public class HFMuramasaProjectile : ModProjectile
             modifiers.ScalingArmorPenetration += 0.5f;
         }
     }
-    //Thank you TML, for running ModifyHitPlayer on the projectile owner's client instead of the client that actually has authority over the hit
-/*     public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+    public static void ModifyHitPlayerFixed(Player target, Projectile source, ref Player.HurtModifiers modifiers)
     {
-        // Make knockback go away from player
-        modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
+        // Make knockback go away from owner
+        modifiers.HitDirectionOverride = Main.player[source.owner].direction;
 
-        // If the player is hit by the spin attack, increase knockback slightly. Increase it even more and ignore half the enemy player's armor for the quickdraw
-        if (CurrentAttack == AttackType.Spin)
+        // If the NPC is hit by the spin attack, increase knockback slightly. Increase it even more and ignore half the enemy armor for the quickdraw
+        if ((int)source.ai[0] == 8)
             modifiers.Knockback += 1;
-        if (CurrentAttack == AttackType.Quickdraw)
+        if ((int)source.ai[0] == 9)
         {
             modifiers.Knockback += 3;
             modifiers.ScalingArmorPenetration += 0.5f;
         }
-    } */
+    }
     public override void OnKill(int timeLeft)
     { //We aren't spawning retrievable ammo, so I removed the myPlayer check.
         if (CurrentAttack == AttackType.BackSwing || CurrentAttack == AttackType.ShortBackSwing || CurrentAttack == AttackType.FastBackSwing1 || CurrentAttack == AttackType.FastBackSwing2 || CurrentAttack == AttackType.Quickdraw)
@@ -826,18 +840,22 @@ public class HFMuramasaProjectile : ModProjectile
 public class HFMuramasaGlowingSlash : ModProjectile
 {
     private ref float Angle => ref Projectile.ai[0]; // The randomly selected angle of the slash
-    private ref float IDTarget => ref Projectile.ai[1]; //The NPC this slash targets. If the NPC dies, instantly executes the slash.
-    //TO DO: Implement targeting enemy players
+    private ref float IDTarget => ref Projectile.ai[1]; //The entity this slash targets. If the entity dies, instantly executes the slash.
+    private ref float PlayerOrNPC => ref Projectile.ai[2]; //Whether the target is a player or NPC
+    public override void SetStaticDefaults()
+    {
+        PVPHitDictionaries.modifyHurtFix[Type] = ModifyHitPlayerFixed;
+    }
     public override void SetDefaults()
     {
-        Projectile.width = 58; //not sure what height and width should be yet since the projectile is invisible
+        Projectile.width = 58;
         Projectile.height = 72;
         Projectile.friendly = true;
         Projectile.timeLeft = 60; //timeLeft used as a timer to manage the animation
         Projectile.penetrate = -1;
         Projectile.tileCollide = false;
         Projectile.usesLocalNPCImmunity = true;
-        Projectile.localNPCHitCooldown = -1; // This should only hit once
+        Projectile.localNPCHitCooldown = -1; // Will only hit once
         Projectile.DamageType = DamageClass.Melee;
         Projectile.ArmorPenetration = 15;
 
@@ -887,27 +905,47 @@ public class HFMuramasaGlowingSlash : ModProjectile
             }
         return false;
     }
-
     public override void AI()
     {
-        NPC target = Main.npc[(int)IDTarget];
         if (Projectile.timeLeft >= 8)
         {
             if (Projectile.timeLeft == 8)
                 SoundEngine.PlaySound(SoundID.Item131 with { Volume = 0.3f, Pitch = 1.9f, MaxInstances = 0 }, Projectile.position);
 
-            if (target.active && target.life + target.defense > Projectile.damage + Projectile.ArmorPenetration)
+            if (PlayerOrNPC == 0)
             {
-                Projectile.position = Projectile.position + (target.position - target.oldPosition);
-                if (!target.Hitbox.Intersects(Projectile.Hitbox))
+                NPC target = Main.npc[(int)IDTarget];
+                if (target.active && target.life + target.defense > Projectile.damage + Projectile.ArmorPenetration)
                 {
-                    Projectile.Center = target.Center; //failsafe for enemies with improperly coded movement
+                    Projectile.position += target.position - target.oldPosition;
+                    if (!target.Hitbox.Intersects(Projectile.Hitbox))
+                    {
+                        Projectile.Center = target.Center; //failsafe for enemies with improperly coded movement
+                    }
+                }
+                else
+                {
+                    Projectile.timeLeft = 8;
                 }
             }
             else
             {
-                Projectile.timeLeft = 8;
+                Player target = Main.player[(int)IDTarget];
+                Projectile.position += target.position - target.oldPosition;
+                if (!target.Hitbox.Intersects(Projectile.Hitbox))
+                {
+                    Projectile.Center = target.Center; //IDK if this does anything for players but better to be safe
+                }
             }
         }
+    }
+    public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+    {
+        modifiers.HitDirectionOverride = MathHelper.WrapAngle(Projectile.rotation) < MathF.PI ? 1 : -1;
+    }
+    public static void ModifyHitPlayerFixed(Player target, Projectile source, ref Player.HurtModifiers modifiers)
+    {
+        modifiers.Knockback *= 0;
+        modifiers.HitDirectionOverride = MathHelper.WrapAngle(source.rotation) < MathF.PI ? 1 : -1;
     }
 }

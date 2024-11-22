@@ -1,7 +1,4 @@
-using GivlsWeapons.Content.Buffs;
-using GivlsWeapons.Content.Dusts;
-using System;
-using Terraria.ID;
+using GivlsWeapons.Common.Configs;
 
 namespace GivlsWeapons.Common.NPCs
 {
@@ -9,7 +6,7 @@ namespace GivlsWeapons.Common.NPCs
     {
         public override void UpdateBadLifeRegen()
         {
-            if (Player.HasBuff(BuffID.ShadowFlame))
+            if (ModContent.GetInstance<BuffConfig>().ShadowflameAffectsPlayers && Player.HasBuff(BuffID.ShadowFlame))
             {
                 if (Player.lifeRegen > 0) Player.lifeRegen = 0;
                 Player.lifeRegenTime = 0;

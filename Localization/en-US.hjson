@@ -1,16 +1,6 @@
 Mods: {
 	GivlsWeapons: {
 		Buffs: {
-			BlackGlow: {
-				DisplayName: Black Glow
-				Description: You're not supposed to have this as a player. Report to the developer of Givl's Weapons if you didn't use another mod to get it.
-			}
-
-			WhiteGlow: {
-				DisplayName: White Glow
-				Description: You're not supposed to have this as a player. Report to the developer of Givl's Weapons if you didn't use another mod to get it.
-			}
-
 			InstaKillCurse: {
 				DisplayName: Curse of Sudden Death
 				Description: One hit will kill you!
@@ -29,7 +19,11 @@ Mods: {
 
 			MeteorDisk: {
 				DisplayName: Meteor Charm
-				Tooltip: Creates a burning aura beneath you that restores mana when it damages enemies
+				Tooltip:
+					'''
+					Creates a burning aura beneath you that restores mana when it damages enemies
+					"Fire, walk with me"
+					'''
 			}
 
 			QuicksilverBoots: {
@@ -121,26 +115,14 @@ Mods: {
 				Tooltip: Throws two embedding daggers connected by an arc of lightning
 				DisplayName: Tesla Daggers
 			}
-
-			BalanceSoul: {
-				DisplayName: Balance Soul
-				Tooltip: ""
-			}
-
-			BalanceBullet: {
-				DisplayName: Balance Bullet
-				Tooltip: ""
-			}
 		}
 
 		Projectiles: {
 			MeteorDiskAura.DisplayName: Meteor Charm Aura
-			BlackBullet.DisplayName: Black Bullet
 			BoringWandProjectile.DisplayName: Pentacle
 			CrossAura.DisplayName: Cross
 			HFMuramasaProjectile.DisplayName: High-Frequency Muramasa
 			RubberKnifeProjectile.DisplayName: Rubber Knife
-			WhiteBullet.DisplayName: White Bullet
 			HFMuramasaGlowingSlash.DisplayName: High-Frequency Muramasa
 			TeleportingAxeProjectile.DisplayName: Tesseraxe
 			TeleportingAxeSwingProjectile.DisplayName: Tesseraxe
@@ -149,13 +131,37 @@ Mods: {
 			Pentacle.DisplayName: Pentacle
 			AltLeafCrystal.DisplayName: Crystal Leaf
 			BreakerBulletProjectile.DisplayName: Breaker Bullet
-			MoonfuryProj.DisplayName: Moonfury Proj
-			MoonfuryRing.DisplayName: Moonfury Ring
 			TeslaDagger.DisplayName: Tesla Dagger
 			TeslaArc.DisplayName: Tesla Arc
-			BalanceBulletProjectile.DisplayName: Balance Bullet Projectile
 			YinYang.DisplayName: Yin Yang
 			YinYangBullet.DisplayName: Yin Yang Bullet
+		}
+
+		Configs: {
+			BuffConfig: {
+				DisplayName: Buffs
+				Headers.Debuffs: Debuffs
+
+				ChaosStateAffectsNPCs: {
+					Label: Chaos State affects NPCs
+					Tooltip:
+						'''
+						Whether Chaos State should damage NPCs when teleporting and emit dust particles.
+						Disable if this effect overlaps with another mod, or is affecting enemies it shouldn't
+						Otherwise, leave it on unless you *really* want it off
+						'''
+				}
+
+				ShadowflameAffectsPlayers: {
+					Label: Shadowflame affects players
+					Tooltip:
+						'''
+						Whether Shadowflame should damage players and emit dust particles
+						Disable if this effect overlaps with another mod or misbehaves
+						Otherwise, leave it on unless you really want it off
+						'''
+				}
+			}
 		}
 	}
 }

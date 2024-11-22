@@ -140,7 +140,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         public override void SetStaticDefaults()
         {
             Main.projFrames[Projectile.type] = 2;
-            PVPHitDictionaries.RegisterOnHitAction<TeleportingAxeProjectile>(OnHitPlayerFixed);
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
         }
 
         public override void OnSpawn(IEntitySource source)
@@ -297,7 +297,8 @@ namespace GivlsWeapons.Content.Items.Weapons
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[Type] = true;
-            PVPHitDictionaries.RegisterOnHitAction<TeleportingAxeSwingProjectile>(OnHitPlayerFixed);
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
+            PVPHitDictionaries.modifyHurtFix[Type] = ModifyHitPlayerFixed;
         }
 
         public override void SetDefaults()
@@ -484,22 +485,14 @@ namespace GivlsWeapons.Content.Items.Weapons
             if (source.ai[0] <= 1) player.AddBuff(BuffID.Frostburn2, 240);
             else player.AddBuff(BuffID.ChaosState, 900);
         }
-        //Thanks to the amazing power of Tmodloader, this hook doesn't run for PvP hits, making it useless
-        /*         public override void OnHitPlayer(Player target, Player.HurtInfo info)
-                {
-                    Main.NewText("OnHitPlayer ran here");
-                    RuneGlow = 1;
-                } */
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            // Make knockback go away from player
-            modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
+            modifiers.HitDirectionOverride = Main.player[Projectile.owner].direction;
         }
-        /*         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers) //This hook doesn't run on the target's client and is therefore useless
-                {
-                    modifiers.HitDirectionOverride = target.position.X > Owner.MountedCenter.X ? 1 : -1;
-                } */
-
+        public static void ModifyHitPlayerFixed(Player target, Projectile source, ref Player.HurtModifiers modifiers)
+        {
+            modifiers.HitDirectionOverride = Main.player[source.owner].direction;
+        }
         public override void OnKill(int timeLeft)
         {
             if (Projectile.owner == Main.myPlayer)

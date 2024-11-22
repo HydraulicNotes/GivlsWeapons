@@ -1,15 +1,15 @@
 Discord: https://discord.gg/H7fzt6Dysm
 
 Have you ever thought that pointing at enemies until they die was a little bit dull?
-Givl's weapons adds several new weapons, which all provide an exciting and engaging experience, beyond what vanilla weapons can.
-Look forward to regular updates with new weapons
+Givl's weapons adds 14 new weapons and items, which are all designed to be fun to use.
 
-Now with multiplayer support!*
+FULL PVP SUPPORT!
 
 Weapons:
 
-NEW - Breaker Bullets: Weakens or destroys enemy projectiles
+NEW - Tesla Daggers - Magic daggers that are connected by an arc of lightning, and embed in enemies and tiles
 
+- Breaker Bullets: Bullets that weaken enemy projectiles until they're destroyed
 - Rising Flame Arrow: Arrow that shoots a flame upwards on impact
 - Tesseraxes: Two axes which you can throw and teleport to at will
 - High-Frequency Muramasa: An advanced sword with a custom swing that creates additional slashes to cut enemies again, and can perform a devastating quickdraw attack with its gun-sheath.
@@ -19,8 +19,7 @@ NEW - Breaker Bullets: Weakens or destroys enemy projectiles
 
 Accessories:
 
-NEW - Chlorophyte Idol: Creates a stationary leaf crystal when hitting an enemy with a true melee attack
-
+- Chlorophyte Idol: Creates a stationary leaf crystal when hitting an enemy with a true melee attack
 - Shield of Discord: Upgrade to Shield of Cthulhu. On hitting an enemy with the dash, teleports you to your cursor. The enemy takes chaos state in your place, and will take the damage as well if either of you has it already.
 - Quicksilver Boots: Hermes Boots alt which rapidly restores mana while running.
 - Meteor Disk: Creates a burning aura underneath you that restores mana as it damages enemies (Just received a massive buff!)
@@ -32,6 +31,6 @@ Potions:
 
 Also adds one meme weapon, try the mod and find out.
 
-*where possible, Tmodloader has a lot of PvP bugs that aren't in my power to fix
+This mod is no longer my focus, but isn't abandoned. Keep an eye out for my next projects.
 
 Find me on the Tmodloader Discord, @Givl

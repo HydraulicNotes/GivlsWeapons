@@ -5,6 +5,7 @@ using GivlsWeapons.Effects;
 using Terraria.DataStructures;
 using Terraria.Audio;
 using GivlsWeapons.Core.Systems.PixelationSystem;
+using GivlsWeapons.Common.Projectiles;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -43,6 +44,10 @@ namespace GivlsWeapons.Content.Items.Weapons
     }
     public class RisingFlameArrowProjectile : ModProjectile
     {
+        public override void SetStaticDefaults()
+        {
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
+        }
         public override void SetDefaults()
         {
             Projectile.Size = Vector2.One * 10;
@@ -61,6 +66,14 @@ namespace GivlsWeapons.Content.Items.Weapons
                 Dust.NewDustPerfect(Main.rand.NextVector2FromRectangle(Projectile.Hitbox), DustID.RedTorch, Projectile.velocity * 0.5f);
             }
         }
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(BuffID.OnFire3, 120);
+        }
+        public static void OnHitPlayerFixed(Player target, Projectile source, Player.HurtInfo info)
+        {
+            target.AddBuff(BuffID.OnFire3, 120);
+        }
         public override void OnKill(int timeLeft)
         {
             Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position, new Vector2(0, -10), ModContent.ProjectileType<RisingFlameProjectile>(), (int)(Projectile.damage * 0.6f), 0, Projectile.owner);
@@ -75,6 +88,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
             ProjectileID.Sets.TrailingMode[Projectile.type] = 3;
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
         }
         public override void SetDefaults()
         {
@@ -119,6 +133,10 @@ namespace GivlsWeapons.Content.Items.Weapons
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(BuffID.OnFire3, 120);
+        }
+        public static void OnHitPlayerFixed(Player target, Projectile source, Player.HurtInfo info)
         {
             target.AddBuff(BuffID.OnFire3, 120);
         }

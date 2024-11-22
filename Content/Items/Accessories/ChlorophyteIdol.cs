@@ -1,10 +1,6 @@
-using Terraria.ID;
 using Terraria.GameContent.Creative;
 using Terraria.Audio;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis;
 
 namespace GivlsWeapons.Content.Items.Accessories
 {
@@ -27,23 +23,10 @@ namespace GivlsWeapons.Content.Items.Accessories
             Item.damage = 80;
             Item.knockBack = 8f;
         }
-
-/*         public override void ModifyTooltips(List<TooltipLine> tooltips) //The crystals actually can crit, so no need to do this. Leaving it in in case I need it later
-        {
-            TooltipLine line = tooltips.FirstOrDefault(x => x.Mod == "Terraria" && x.Name == "CritChance");
-
-            if (line != null)
-            {
-                //Being safe in case some other mod messes with crit tooltips
-                tooltips.Remove(line);
-            }
-        } */
-
         public override bool MeleePrefix()
         {
             return false;
         }
-
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             player.GetModPlayer<ChlorophyteIdolPlayer>().AccessoryEquipped = true;
@@ -72,10 +55,10 @@ namespace GivlsWeapons.Content.Items.Accessories
             }
         }
         public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
-        { //Check for melee, then true melee by checking if heldProj is set, then distance to account for new excalibur-types, then for harpoon and flairon ai. Distance is wider than needed to account for other modders' potential bad code.
+        { //Check for true melee projectiles. If the damage type is melee, and either is their heldproj, has jts center within 8 pixels of theirs, or is of a type that is arguably true melee, it will activate
             if ((hit.DamageType == DamageClass.Melee || hit.DamageType == DamageClass.MeleeNoSpeed) &&
-            (Player.heldProj == proj.whoAmI || proj.Distance(Player.Center) <= 8f || proj.aiStyle == ProjAIStyleID.Harpoon || proj.aiStyle == ProjAIStyleID.Flairon))
-            { //True melee projectiles that don't set Player.heldProj, and don't anchor themselves to the player's center or use the Flail or Flairon ai style won't work. Projectile melee weapons at extremely close range will, but that hardly matters.
+            (Player.heldProj == proj.whoAmI || proj.Distance(Player.Center) <= 64f || proj.aiStyle == ProjAIStyleID.Harpoon || proj.aiStyle == ProjAIStyleID.Flairon))
+            { //Some edge cases might get counted or not counted incorrectly, but this should work 99% of the time, and for everything vanilla or added by this mod
                 TrySpawningCrystal(target);
             }
         }
@@ -86,9 +69,8 @@ namespace GivlsWeapons.Content.Items.Accessories
         }
         void TrySpawningCrystal(NPC target)
         {
-            if (Main.myPlayer == Player.whoAmI && AccessoryEquipped && CooldownTimer >= DURATION)
+            if (AccessoryEquipped && CooldownTimer >= DURATION)
             {
-                //Vector2 spawnPos = (Player.Center + target.Center) * 0.5f;
                 Vector2 spawnVel = target.Center.AngleTo(Player.Center).ToRotationVector2() * target.Center.Distance(Player.Center) * 0.064f;
                 Projectile.NewProjectile(Player.GetSource_Accessory(Accessory), target.Center, spawnVel, ModContent.ProjectileType<AltLeafCrystal>(), 100, 10f, Player.whoAmI);
                 SoundEngine.PlaySound(SoundID.Item8);
@@ -119,8 +101,7 @@ namespace GivlsWeapons.Content.Items.Accessories
             Projectile.DamageType = DamageClass.Melee;
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
-            Projectile.timeLeft = 180; //timeLeft and DURATION determine the amount of shots that can be fired over its lifetime.
-            //Currently, this is 4 shots plus 20 ticks. Since it won't always have a target, it should have some extra time so it won't miss potential shots
+            Projectile.timeLeft = 180; //timeLeft and DURATION determine the amount of shots that can be fired over its lifetime. 180 = 4x + 20. Since it won't always have a target, it should have some extra time so it won't miss potential shots
             Projectile.noEnchantmentVisuals = true;
         }
 
@@ -160,7 +141,7 @@ namespace GivlsWeapons.Content.Items.Accessories
             {
                 ShotTimer--;
             }
-            //Make the projectile bob slightly up and down. Not done in velocity because of the deceleration effect. There's probably a way to make it work through velocity, but it's not worth my time. Bobbing is meant to be visual anyway, so it may be better not to.
+            //Make the projectile bob slightly up and down. Not done in velocity cause I'm lazy.
             Projectile.position += new Vector2(0, MathF.Sin(Projectile.timeLeft * 0.03f) * 0.15f);
 
             if (Projectile.timeLeft > COOLDOWN) //Fade out slowly, and then become fully opaque after shooting
@@ -170,7 +151,7 @@ namespace GivlsWeapons.Content.Items.Accessories
             else //Fade out near the end of the lifetime. Checks if alpha is already higher
             {
                 int newAlpha = 255 - (int)(255 * (Projectile.timeLeft * 0.02f));
-                if(newAlpha > Projectile.alpha) Projectile.alpha = newAlpha;
+                if (newAlpha > Projectile.alpha) Projectile.alpha = newAlpha;
             }
         }
     }

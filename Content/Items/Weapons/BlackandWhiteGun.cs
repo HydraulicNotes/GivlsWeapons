@@ -1,14 +1,10 @@
 ﻿using System.Collections.Generic;
 using GivlsWeapons.Helpers;
 using Terraria.DataStructures;
-using Terraria.GameContent;
 using Terraria.Graphics.Effects;
 using Terraria.GameContent.Creative;
 using System.Linq;
-using Terraria.Graphics;
-using Terraria.Graphics.Shaders;
 using System;
-using GivlsWeapons.Core.Systems.PixelationSystem;
 using Terraria.Audio;
 
 namespace GivlsWeapons.Content.Items.Weapons
@@ -31,7 +27,6 @@ namespace GivlsWeapons.Content.Items.Weapons
 
             Item.useTime = 18;
             Item.useAnimation = 18;
-            //Item.reuseDelay = 4;
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.autoReuse = false;
 
@@ -59,16 +54,6 @@ namespace GivlsWeapons.Content.Items.Weapons
 
         public override void AddRecipes()
         {
-            //CreateRecipe()
-            //.AddIngredient(ModContent.ItemType<BalanceSoul>(), 2)
-            //.AddIngredient(ItemID.TheUndertaker)
-            //.AddTile(TileID.MythrilAnvil)
-            //.Register();
-            //CreateRecipe()
-            //.AddIngredient(ModContent.ItemType<BalanceSoul>(), 2)
-            //.AddIngredient(ItemID.Musket)
-            //.AddTile(TileID.MythrilAnvil)
-            //.Register();
             CreateRecipe()
                 .AddIngredient(ItemID.DarkShard)
                 .AddIngredient(ItemID.LightShard)
@@ -85,7 +70,6 @@ namespace GivlsWeapons.Content.Items.Weapons
     }
     public class YinYang : ModProjectile
     {
-        private ref float Timer => ref Projectile.ai[0];
         public override void SetDefaults()
         {
             Projectile.width = 64;
@@ -106,46 +90,40 @@ namespace GivlsWeapons.Content.Items.Weapons
             if (Projectile.velocity.LengthSquared() < 10 && Main.myPlayer == Projectile.owner)
             {
                 Player owner = Main.player[Projectile.owner];
-                foreach (var p in Main.projectile.Take(Main.maxProjectiles).Where(x => x.active && !owner.InOpposingTeam(Main.player[x.owner]) && x.aiStyle == ProjAIStyleID.Arrow && x.Colliding(x.Hitbox, Projectile.Hitbox)))
+                foreach (var p in Main.projectile.Take(Main.maxProjectiles).Where(x => x.active && x.aiStyle == ProjAIStyleID.Arrow && x.Colliding(x.Hitbox, Projectile.Hitbox)))
                 {
-                    /* for (int i = 0; i < 3; i++)
-                    {
-                        Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Main.rand.NextVector2CircularEdge(2, 2), ModContent.ProjectileType<YinYangBullet>(), Projectile.damage, Projectile.knockBack, Projectile.owner, ai0: Projectile.identity, ai1: 0f);
-                        Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Main.rand.NextVector2CircularEdge(2, 2), ModContent.ProjectileType<YinYangBullet>(), Projectile.damage, Projectile.knockBack, Projectile.owner, ai0: Projectile.identity, ai1: 1f);
-                    } */
                     int bulletCount = 0;
-                    /*for (int i = 0; i < Main.projectile.Length; i++)
+                    for (int i = 0; i < Main.player.Length; i++)
                     {
-                        if (bulletCount >= 6 || bulletCount >= owner.ownedProjectileCounts[Type] - 1) break;
-                        Projectile proj = Main.projectile[i];
-                        if (proj.active && proj.type == Type && proj.whoAmI != Projectile.whoAmI && !owner.InOpposingTeam(Main.player[proj.owner]))
+                        if(bulletCount >= 4) break;
+                        Player target = Main.player[i];
+                        if (target.DistanceSQ(Projectile.Center) <= 409600 && target.InOpposingTeam(owner))
                         {
-                            SpawnBullet(bulletCount % 2 == 0, proj.Center);
+                            SpawnBullet(target.Center);
                             bulletCount++;
                         }
-                    }*/
+                    }
                     for (int i = 0; i < Main.npc.Length; i++)
                     {
                         if (bulletCount >= 4) break;
                         NPC target = Main.npc[i];
-                        if (target.DistanceSQ(Projectile.position) <= 409600 && target.CanBeChasedBy(this)) //max distance is 40 tiles ((40 * 16)^2)
+                        if (target.DistanceSQ(Projectile.Center) <= 409600 && target.CanBeChasedBy(this)) //max distance is 40 tiles ((40 * 16)^2)
                         {
-                            SpawnBullet(bulletCount % 2 == 0, target.Center);
+                            SpawnBullet(target.Center);
                             bulletCount++;
                         }
                     }
                     while (bulletCount < 4)
                     {
-                        SpawnBullet(bulletCount % 2 == 0, Projectile.Center + Main.rand.NextVector2CircularEdge(1, 1));
+                        SpawnBullet(Projectile.Center + Main.rand.NextVector2CircularEdge(1, 1));
                         bulletCount++;
                     }
                     Projectile.Kill();
                     break;
                 }
             }
-            else Timer++;
         }
-        public void SpawnBullet(bool isBlack, Vector2 targPos)
+        public void SpawnBullet(Vector2 targPos)
         {
             Vector2 velocity;
             if (targPos == Projectile.Center)
@@ -160,8 +138,7 @@ namespace GivlsWeapons.Content.Items.Weapons
             ModContent.ProjectileType<YinYangBullet>(),
             Projectile.damage,
             Projectile.knockBack,
-            Projectile.owner,
-            ai0: isBlack ? 0f : 1f);
+            Projectile.owner);
         }
         public override bool OnTileCollide(Vector2 oldVelocity)
         {
@@ -192,11 +169,6 @@ namespace GivlsWeapons.Content.Items.Weapons
         private Trail trail;
 
         private float trailWidth = 0.1f;
-        public int BulletType
-        {
-            get => (int)Projectile.ai[0];
-            set => Projectile.ai[0] = value;
-        }
         public enum BulletColors
         {
             Black,

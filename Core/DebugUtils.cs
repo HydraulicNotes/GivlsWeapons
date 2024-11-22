@@ -1,14 +1,5 @@
 using System;
-using Microsoft.Xna.Framework;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.Audio;
-using Terraria.ID;
-using Terraria.DataStructures;
-using Microsoft.Xna.Framework.Graphics;
-using System.IO;
 using Terraria.GameContent;
-using System.Net;
 
 namespace GivlsWeapons.Core
 {

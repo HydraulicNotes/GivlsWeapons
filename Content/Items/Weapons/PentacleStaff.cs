@@ -2,6 +2,7 @@
 using Terraria.GameContent.Creative;
 using GivlsWeapons.Content.Dusts;
 using System;
+using GivlsWeapons.Common.Projectiles;
 
 namespace GivlsWeapons.Content.Items.Weapons
 {
@@ -43,6 +44,10 @@ namespace GivlsWeapons.Content.Items.Weapons
         private ref float HealingEnergy => ref Projectile.ai[1];
         private ref float TurnaroundCooldown => ref Projectile.ai[2]; //Prevents the projectile from canceling out turns by hitting two enemies close together
         const int TURNDELAY = 10;
+        public override void SetStaticDefaults()
+        {
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
+        }
         public override void SetDefaults()
         {
             Projectile.width = 32;
@@ -85,11 +90,11 @@ namespace GivlsWeapons.Content.Items.Weapons
             }
             else
             {
-                // Trying to find NPC closest to the projectile
-                NPC closestNPC = FindClosestNPC(maxDetectRadius, maxAngle);
-                if (closestNPC != null)
+                // Trying to find target closest to the projectile
+                Vector2 target = FindTarget(maxDetectRadius, maxAngle);
+                if (target != Vector2.Zero)
                 {
-                    float targetAngle = Projectile.Center.AngleTo(closestNPC.Center);
+                    float targetAngle = Projectile.Center.AngleTo(target);
                     Projectile.velocity = Projectile.velocity.ToRotation().AngleTowards(targetAngle, MathHelper.ToRadians(0.6f)).ToRotationVector2() * projSpeed;
                 }
             }
@@ -126,14 +131,32 @@ namespace GivlsWeapons.Content.Items.Weapons
 
 
         }
-        public NPC FindClosestNPC(float maxDetectDistance, float maxDetectAngle)
+        public Vector2 FindTarget(float maxDetectDistance, float maxDetectAngle)
         {
-            NPC closestNPC = null;
+            Vector2 targPos = Vector2.Zero;
 
             // Using squared values in distance checks will let us skip square root calculations, drastically improving this method's speed.
             float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
 
             // Loop through all NPCs
+            foreach (var target in Main.ActivePlayers)
+            {
+                if (target.InOpposingTeam(Main.player[Projectile.owner]) && target.whoAmI != Projectile.owner)
+                {
+                    // The DistanceSquared function returns a squared distance between 2 points, skipping relatively expensive square root calculations
+                    float sqrDistanceToTarget = Vector2.DistanceSquared(target.Center, Projectile.Center);
+                    float angleToTarget = Math.Abs(Projectile.Center.AngleTo(target.Center) - Projectile.velocity.ToRotation());
+
+                    // Check if it is within the radius and angle requirements
+                    if (sqrDistanceToTarget < sqrMaxDetectDistance && angleToTarget < maxDetectAngle)
+                    {
+                        sqrMaxDetectDistance = sqrDistanceToTarget;
+                        targPos = target.Center;
+                    }
+                }
+            }
+            if(targPos != Vector2.Zero) return targPos;
+            
             foreach (var target in Main.ActiveNPCs)
             {
                 // Check if NPC able to be targeted. It means that NPC is
@@ -153,12 +176,12 @@ namespace GivlsWeapons.Content.Items.Weapons
                     if (sqrDistanceToTarget < sqrMaxDetectDistance && angleToTarget < maxDetectAngle)
                     {
                         sqrMaxDetectDistance = sqrDistanceToTarget;
-                        closestNPC = target;
+                        targPos = target.Center;
                     }
                 }
             }
 
-            return closestNPC;
+            return targPos;
         }
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
@@ -177,6 +200,21 @@ namespace GivlsWeapons.Content.Items.Weapons
                 Projectile.damage = 0;
             }
             Projectile.netUpdate = true;
+        }
+        public static void OnHitPlayerFixed(Player target, Projectile source, Player.HurtInfo info)
+        {
+            if (source.ai[2] <= 0)
+            {
+                source.velocity *= -0.9f;
+                source.ai[2] = TURNDELAY;
+            }
+            source.timeLeft = 180;
+                source.ai[1]++;
+            if (source.penetrate == 0)
+            {
+                source.damage = 0;
+            }
+            source.netUpdate = true;
         }
     }
 }

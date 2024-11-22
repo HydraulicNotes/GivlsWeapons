@@ -70,7 +70,7 @@ namespace GivlsWeapons.Content.Items.Weapons
         {
             ProjectileID.Sets.TrailingMode[Projectile.type] = 3;
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
-            PVPHitDictionaries.RegisterOnHitAction<BreakerBulletProjectile>(OnHitPlayerFixed);
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
         }
         public override void OnSpawn(IEntitySource source)
         {

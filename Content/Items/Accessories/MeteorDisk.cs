@@ -1,6 +1,7 @@
 ﻿using Terraria.GameContent.Creative;
 using System.Linq;
 using GivlsWeapons.Common.Projectiles;
+using System;
 
 namespace GivlsWeapons.Content.Items.Accessories
 {
@@ -86,8 +87,8 @@ namespace GivlsWeapons.Content.Items.Accessories
         }
         public override void SetStaticDefaults()
         {
-            PVPHitDictionaries.RegisterOnHitAction<MeteorDiskAura>(OnHitPlayerFixed);
-            PVPHitDictionaries.RegisterModifyHitAction<MeteorDiskAura>(ModifyHitPlayerFixed);
+            PVPHitDictionaries.onHurtFix[Type] = OnHitPlayerFixed;
+            PVPHitDictionaries.modifyHurtFix[Type] = ModifyHitPlayerFixed;
         }
         public override bool? CanCutTiles()
         {
@@ -103,6 +104,13 @@ namespace GivlsWeapons.Content.Items.Accessories
             if (owner.GetModPlayer<MeteorDiskEquipped>().Equipped && !owner.dead)
             {
                 Projectile.timeLeft = 3;
+            }
+
+            for(int i = 0; i < Main.rand.Next(8); i++)
+            {
+                Vector2 pos1 = Projectile.Center + Easings.OutQuart(Main.rand.NextFloat()) * (Projectile.width / 2) * Main.rand.NextFloat(MathF.Tau).ToRotationVector2();
+                Dust.NewDustPerfect(pos1, DustID.Torch, (pos1.AngleTo(Projectile.Center) + MathHelper.ToRadians(Main.rand.NextBool() ? 90f : -90f)).ToRotationVector2() + owner.velocity + new Vector2(0, -1f));
+                Dust.NewDustPerfect(Projectile.Center + Main.rand.NextVector2Circular(Projectile.width / 2, Projectile.height / 2), DustID.Torch, new Vector2(0f, -1.5f) + owner.velocity, Scale: 0.6f);
             }
         }
 
@@ -124,9 +132,13 @@ namespace GivlsWeapons.Content.Items.Accessories
 
             player.AddBuff(BuffID.OnFire, 180);
         }
-        public static void ModifyHitPlayerFixed(Player player, Projectile source, Player.HurtModifiers modifiers)
+        public static void ModifyHitPlayerFixed(Player player, Projectile source, ref Player.HurtModifiers modifiers)
         {
             modifiers.HitDirectionOverride = Main.player[source.owner].direction;
+        }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            return false;
         }
     }
 }

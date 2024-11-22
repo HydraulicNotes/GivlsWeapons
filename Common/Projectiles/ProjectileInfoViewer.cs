@@ -2,7 +2,7 @@
 
 namespace GivlsWeapons.Common.Projectiles
 {
-    public class ProjectileAIViewer : GlobalProjectile
+    public class ProjectileInfoViewer : GlobalProjectile
     {
         public override void AI(Projectile projectile)
         {
